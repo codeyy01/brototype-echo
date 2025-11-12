@@ -11,7 +11,10 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { TopNav } from "@/components/layout/TopNav";
 import Auth from "./pages/Auth";
 import MyComplaints from "./pages/MyComplaints";
+import NewComplaint from "./pages/NewComplaint";
+import Community from "./pages/Community";
 import Profile from "./pages/Profile";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +43,34 @@ const App = () => (
                 </SidebarProvider>
               </ProtectedRoute>
             } />
+            <Route path="/new-complaint" element={
+              <ProtectedRoute>
+                <SidebarProvider>
+                  <div className="min-h-screen flex w-full">
+                    <AppSidebar />
+                    <main className="flex-1">
+                      <TopNav />
+                      <NewComplaint />
+                    </main>
+                  </div>
+                  <BottomNav />
+                </SidebarProvider>
+              </ProtectedRoute>
+            } />
+            <Route path="/community" element={
+              <ProtectedRoute>
+                <SidebarProvider>
+                  <div className="min-h-screen flex w-full">
+                    <AppSidebar />
+                    <main className="flex-1">
+                      <TopNav />
+                      <Community />
+                    </main>
+                  </div>
+                  <BottomNav />
+                </SidebarProvider>
+              </ProtectedRoute>
+            } />
             <Route path="/profile" element={
               <ProtectedRoute>
                 <SidebarProvider>
@@ -48,6 +79,20 @@ const App = () => (
                     <main className="flex-1">
                       <TopNav />
                       <Profile />
+                    </main>
+                  </div>
+                  <BottomNav />
+                </SidebarProvider>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin-dashboard" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <SidebarProvider>
+                  <div className="min-h-screen flex w-full">
+                    <AppSidebar />
+                    <main className="flex-1">
+                      <TopNav />
+                      <AdminDashboard />
                     </main>
                   </div>
                   <BottomNav />

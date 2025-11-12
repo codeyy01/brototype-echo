@@ -7,8 +7,8 @@ interface TicketCardProps {
   ticket: {
     id: string;
     title: string;
-    status: 'open' | 'in_progress' | 'resolved';
-    severity: 'low' | 'medium' | 'critical';
+    status: string;
+    severity: string;
     created_at: string;
     upvote_count?: number;
   };
@@ -25,12 +25,12 @@ export const TicketCard = ({ ticket, onClick, showUpvotes = false }: TicketCardP
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1 min-w-0">
-            <SeverityIcon severity={ticket.severity} />
+            <SeverityIcon severity={ticket.severity as any} />
             <h3 className="font-semibold text-foreground line-clamp-2 flex-1">
               {ticket.title}
             </h3>
           </div>
-          <StatusBadge status={ticket.status} />
+          <StatusBadge status={ticket.status as any} />
         </div>
       </CardHeader>
       <CardContent className="pt-0">
