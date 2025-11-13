@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { TicketCard } from '@/components/shared/TicketCard';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
@@ -23,7 +23,6 @@ type Ticket = {
 const Community = () => {
   const { user } = useAuth();
   const [activeTickets, setActiveTickets] = useState<Ticket[]>([]);
-  const [resolvedTickets, setResolvedTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [upvoting, setUpvoting] = useState<string | null>(null);
   const [userUpvotes, setUserUpvotes] = useState<Set<string>>(new Set());
@@ -47,17 +46,7 @@ const Community = () => {
 
       if (activeError) throw activeError;
 
-      const { data: resolved, error: resolvedError } = await supabase
-        .from('tickets')
-        .select('*')
-        .eq('visibility', 'public')
-        .eq('status', 'resolved')
-        .order('created_at', { ascending: false });
-
-      if (resolvedError) throw resolvedError;
-
       setActiveTickets(active || []);
-      setResolvedTickets(resolved || []);
     } catch (error: any) {
       toast({
         title: 'Error loading tickets',
@@ -142,56 +131,35 @@ const Community = () => {
     <div className="container mx-auto p-6 pb-24 md:pb-6">
       <h1 className="text-3xl font-semibold text-foreground mb-6">Community Voices</h1>
 
-      <Tabs defaultValue="active" className="space-y-6">
-        <TabsList className="bg-sky-50">
-          <TabsTrigger value="active" className="data-[state=active]:bg-background">
-            Active Issues ({activeTickets.length})
-          </TabsTrigger>
-          <TabsTrigger value="resolved" className="data-[state=active]:bg-background">
-            Resolved Archives ({resolvedTickets.length})
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="active" className="space-y-4">
-          {activeTickets.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No active community issues yet. Be the first to share!</p>
-            </div>
-          ) : (
-            activeTickets.map((ticket) => (
-              <div key={ticket.id} className="relative">
-                <TicketCard ticket={ticket} />
-                <div className="mt-2 flex items-center gap-2">
-                  <Button
-                    variant={userUpvotes.has(ticket.id) ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => handleUpvote(ticket.id)}
-                    disabled={upvoting === ticket.id}
-                    className="gap-2"
-                  >
-                    {upvoting === ticket.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <ThumbsUp className="h-4 w-4" />
-                    )}
-                    Me Too ({ticket.upvote_count})
-                  </Button>
-                </div>
+      <div className="space-y-4">
+        {activeTickets.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">No active community issues yet. Be the first to share!</p>
+          </div>
+        ) : (
+          activeTickets.map((ticket) => (
+            <div key={ticket.id} className="relative">
+              <TicketCard ticket={ticket} />
+              <div className="mt-2 flex items-center gap-2">
+                <Button
+                  variant={userUpvotes.has(ticket.id) ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handleUpvote(ticket.id)}
+                  disabled={upvoting === ticket.id}
+                  className="gap-2"
+                >
+                  {upvoting === ticket.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <ThumbsUp className="h-4 w-4" />
+                  )}
+                  Me Too ({ticket.upvote_count})
+                </Button>
               </div>
-            ))
-          )}
-        </TabsContent>
-
-        <TabsContent value="resolved" className="space-y-4">
-          {resolvedTickets.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No resolved issues yet.</p>
             </div>
-          ) : (
-            resolvedTickets.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} />)
-          )}
-        </TabsContent>
-      </Tabs>
+          ))
+        )}
+      </div>
     </div>
   );
 };
