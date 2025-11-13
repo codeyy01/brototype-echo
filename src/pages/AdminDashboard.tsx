@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TicketCard } from '@/components/shared/TicketCard';
+import { TicketDetailSheet } from '@/components/admin/TicketDetailSheet';
 import { toast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 
@@ -16,11 +17,14 @@ type Ticket = {
   upvote_count: number;
   created_at: string;
   created_by: string;
+  attachment_url: string | null;
 };
 
 const AdminDashboard = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
     fetchTickets();
@@ -57,6 +61,11 @@ const AdminDashboard = () => {
     );
   }
 
+  const handleTicketClick = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setSheetOpen(true);
+  };
+
   const openTickets = tickets.filter((t) => t.status === 'open');
   const inProgressTickets = tickets.filter((t) => t.status === 'in_progress');
   const resolvedTickets = tickets.filter((t) => t.status === 'resolved');
@@ -84,7 +93,14 @@ const AdminDashboard = () => {
               <p className="text-muted-foreground">No open tickets</p>
             </div>
           ) : (
-            openTickets.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} />)
+            openTickets.map((ticket) => (
+              <TicketCard 
+                key={ticket.id} 
+                ticket={ticket} 
+                onClick={() => handleTicketClick(ticket)}
+                showUpvotes 
+              />
+            ))
           )}
         </TabsContent>
 
@@ -94,7 +110,14 @@ const AdminDashboard = () => {
               <p className="text-muted-foreground">No tickets in progress</p>
             </div>
           ) : (
-            inProgressTickets.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} />)
+            inProgressTickets.map((ticket) => (
+              <TicketCard 
+                key={ticket.id} 
+                ticket={ticket} 
+                onClick={() => handleTicketClick(ticket)}
+                showUpvotes 
+              />
+            ))
           )}
         </TabsContent>
 
@@ -104,10 +127,24 @@ const AdminDashboard = () => {
               <p className="text-muted-foreground">No resolved tickets</p>
             </div>
           ) : (
-            resolvedTickets.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} />)
+            resolvedTickets.map((ticket) => (
+              <TicketCard 
+                key={ticket.id} 
+                ticket={ticket} 
+                onClick={() => handleTicketClick(ticket)}
+                showUpvotes 
+              />
+            ))
           )}
         </TabsContent>
       </Tabs>
+
+      <TicketDetailSheet
+        ticket={selectedTicket}
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        onUpdate={fetchTickets}
+      />
     </div>
   );
 };

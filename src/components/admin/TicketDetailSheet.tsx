@@ -1,0 +1,260 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { StatusBadge } from '@/components/shared/StatusBadge';
+import { SeverityIcon } from '@/components/shared/SeverityIcon';
+import { toast } from '@/hooks/use-toast';
+import { formatDistanceToNow } from 'date-fns';
+import { Loader2, ThumbsUp, Paperclip } from 'lucide-react';
+
+interface Ticket {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  severity: string;
+  status: string;
+  visibility: string;
+  upvote_count: number;
+  created_at: string;
+  created_by: string;
+  attachment_url: string | null;
+}
+
+interface AdminResponse {
+  id: string;
+  text: string;
+  created_at: string;
+  admin_id: string;
+}
+
+interface TicketDetailSheetProps {
+  ticket: Ticket | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onUpdate: () => void;
+}
+
+export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate }: TicketDetailSheetProps) => {
+  const [status, setStatus] = useState<'open' | 'in_progress' | 'resolved'>('open');
+  const [responseText, setResponseText] = useState('');
+  const [responses, setResponses] = useState<AdminResponse[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingResponses, setLoadingResponses] = useState(false);
+
+  const fetchResponses = async () => {
+    if (!ticket) return;
+    
+    setLoadingResponses(true);
+    try {
+      const { data, error } = await supabase
+        .from('admin_responses')
+        .select('*')
+        .eq('ticket_id', ticket.id)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setResponses(data || []);
+    } catch (error: any) {
+      console.error('Error fetching responses:', error);
+    } finally {
+      setLoadingResponses(false);
+    }
+  };
+
+  const handleStatusUpdate = async () => {
+    if (!ticket) return;
+
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('tickets')
+        .update({ status })
+        .eq('id', ticket.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Status updated',
+        description: 'Ticket status has been updated successfully.',
+      });
+
+      onUpdate();
+    } catch (error: any) {
+      toast({
+        title: 'Error updating status',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddResponse = async () => {
+    if (!ticket || !responseText.trim()) return;
+
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { error } = await supabase
+        .from('admin_responses')
+        .insert({
+          ticket_id: ticket.id,
+          admin_id: user.id,
+          text: responseText.trim(),
+        });
+
+      if (error) throw error;
+
+      setResponseText('');
+      await fetchResponses();
+
+      toast({
+        title: 'Response added',
+        description: 'Your response has been added successfully.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error adding response',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update status when ticket changes
+  useEffect(() => {
+    if (ticket) {
+      setStatus(ticket.status as 'open' | 'in_progress' | 'resolved');
+      fetchResponses();
+    }
+  }, [ticket?.id]);
+
+  if (!ticket) return null;
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-3 text-left">
+            <SeverityIcon severity={ticket.severity as any} />
+            {ticket.title}
+          </SheetTitle>
+        </SheetHeader>
+
+        <div className="mt-6 space-y-6">
+          {/* Ticket Details */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-4 flex-wrap">
+              <StatusBadge status={ticket.status as any} />
+              <span className="text-sm text-muted-foreground">
+                Category: <span className="font-medium">{ticket.category}</span>
+              </span>
+              <span className="text-sm text-muted-foreground">
+                Severity: <span className="font-medium">{ticket.severity}</span>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <ThumbsUp className="h-4 w-4" />
+                {ticket.upvote_count} upvotes
+              </span>
+              <span>
+                {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
+              </span>
+              <span className="capitalize">{ticket.visibility}</span>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-2">Description</h4>
+              <p className="text-muted-foreground whitespace-pre-wrap">{ticket.description}</p>
+            </div>
+
+            {ticket.attachment_url && (
+              <div>
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <Paperclip className="h-4 w-4" />
+                  Attachment
+                </h4>
+                <img
+                  src={ticket.attachment_url}
+                  alt="Ticket attachment"
+                  className="rounded-lg border max-w-full h-auto"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Status Update */}
+          <div className="space-y-3 border-t pt-4">
+            <h4 className="font-semibold">Update Status</h4>
+            <div className="flex gap-2">
+              <Select value={status} onValueChange={(value) => setStatus(value as 'open' | 'in_progress' | 'resolved')}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="open">Open</SelectItem>
+                  <SelectItem value="in_progress">In Progress</SelectItem>
+                  <SelectItem value="resolved">Resolved</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button onClick={handleStatusUpdate} disabled={loading || status === ticket.status}>
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Update'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Admin Responses */}
+          <div className="space-y-3 border-t pt-4">
+            <h4 className="font-semibold">Admin Responses</h4>
+            
+            {loadingResponses ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="h-6 w-6 animate-spin text-sky-600" />
+              </div>
+            ) : responses.length > 0 ? (
+              <div className="space-y-3">
+                {responses.map((response) => (
+                  <div key={response.id} className="bg-sky-50 rounded-lg p-4">
+                    <p className="text-sm">{response.text}</p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {formatDistanceToNow(new Date(response.created_at), { addSuffix: true })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No responses yet</p>
+            )}
+
+            <div className="space-y-2">
+              <Textarea
+                placeholder="Add a response..."
+                value={responseText}
+                onChange={(e) => setResponseText(e.target.value)}
+                rows={4}
+              />
+              <Button 
+                onClick={handleAddResponse} 
+                disabled={loading || !responseText.trim()}
+                className="w-full"
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add Response'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
