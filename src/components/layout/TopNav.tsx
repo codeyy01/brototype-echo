@@ -1,6 +1,5 @@
-import { Menu, LogOut, User } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,18 +20,7 @@ export const TopNav = () => {
 
   return (
     <header className="h-14 border-b border-border bg-card flex items-center justify-between px-4 sticky top-0 z-40">
-      <div className="flex items-center md:hidden">
-        <SidebarTrigger>
-          <Button variant="ghost" size="icon">
-            <Menu className="h-5 w-5" />
-          </Button>
-        </SidebarTrigger>
-        <h1 className="text-lg font-semibold ml-3">BroBox</h1>
-      </div>
-
-      <div className="hidden md:block">
-        <h1 className="text-lg font-semibold">BroBox</h1>
-      </div>
+      <h1 className="text-lg font-semibold">BroBox</h1>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
