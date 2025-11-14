@@ -10,6 +10,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
 import { Upload, Globe, Lock } from 'lucide-react';
+import { z } from 'zod';
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png'];
+
+const complaintSchema = z.object({
+  title: z.string().trim().min(5, 'Title must be at least 5 characters').max(200, 'Title must be less than 200 characters'),
+  description: z.string().trim().min(10, 'Description must be at least 10 characters').max(5000, 'Description must be less than 5000 characters'),
+  category: z.enum(['academic', 'infrastructure', 'other']),
+  severity: z.enum(['low', 'medium', 'critical']),
+  visibility: z.enum(['private', 'public']),
+});
 
 const NewComplaint = () => {
   const navigate = useNavigate();
@@ -28,13 +40,36 @@ const NewComplaint = () => {
     e.preventDefault();
     if (!user) return;
 
-    if (!formData.title.trim() || !formData.description.trim()) {
+    // Validate form data with zod
+    const validation = complaintSchema.safeParse(formData);
+    if (!validation.success) {
+      const firstError = validation.error.errors[0];
       toast({
         title: 'Validation Error',
-        description: 'Please fill in all required fields',
+        description: firstError.message,
         variant: 'destructive',
       });
       return;
+    }
+
+    // Validate file if present
+    if (file) {
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        toast({
+          title: 'Invalid File Type',
+          description: 'Only JPG and PNG images are allowed',
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          title: 'File Too Large',
+          description: 'File size must be less than 5MB',
+          variant: 'destructive',
+        });
+        return;
+      }
     }
 
     setLoading(true);
@@ -51,11 +86,13 @@ const NewComplaint = () => {
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
+        // Get signed URL with 1 year expiry instead of public URL
+        const { data: signedUrlData, error: signedUrlError } = await supabase.storage
           .from('ticket-attachments')
-          .getPublicUrl(fileName);
+          .createSignedUrl(fileName, 31536000); // 1 year in seconds
 
-        attachmentUrl = publicUrl;
+        if (signedUrlError) throw signedUrlError;
+        attachmentUrl = signedUrlData.signedUrl;
       }
 
       const { error } = await supabase.from('tickets').insert([{
