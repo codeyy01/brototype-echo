@@ -40,6 +40,7 @@ interface TicketDetailSheetProps {
 
 export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate }: TicketDetailSheetProps) => {
   const [status, setStatus] = useState<'open' | 'in_progress' | 'resolved'>('open');
+  const [originalStatus, setOriginalStatus] = useState<'open' | 'in_progress' | 'resolved'>('open');
   const [responseText, setResponseText] = useState('');
   const [responses, setResponses] = useState<AdminResponse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -65,63 +66,56 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate }: Tick
     }
   };
 
-  const handleStatusUpdate = async () => {
+  const handleSubmitUpdate = async () => {
     if (!ticket) return;
 
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('tickets')
-        .update({ status })
-        .eq('id', ticket.id);
+    const statusChanged = status !== originalStatus;
+    const hasResponse = responseText.trim().length > 0;
 
-      if (error) throw error;
-
-      toast({
-        title: 'Status updated',
-        description: 'Ticket status has been updated successfully.',
-      });
-
-      onUpdate();
-    } catch (error: any) {
-      toast({
-        title: 'Error updating status',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddResponse = async () => {
-    if (!ticket || !responseText.trim()) return;
+    // If nothing to update, return early
+    if (!statusChanged && !hasResponse) return;
 
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { error } = await supabase
-        .from('admin_responses')
-        .insert({
-          ticket_id: ticket.id,
-          admin_id: user.id,
-          text: responseText.trim(),
-        });
+      // Update status if changed
+      if (statusChanged) {
+        const { error } = await supabase
+          .from('tickets')
+          .update({ status })
+          .eq('id', ticket.id);
 
-      if (error) throw error;
+        if (error) throw error;
+      }
 
+      // Add response if provided
+      if (hasResponse) {
+        const { error } = await supabase
+          .from('admin_responses')
+          .insert({
+            ticket_id: ticket.id,
+            admin_id: user.id,
+            text: responseText.trim(),
+          });
+
+        if (error) throw error;
+      }
+
+      // Clear textarea and update original status
       setResponseText('');
+      setOriginalStatus(status);
       await fetchResponses();
+      onUpdate();
 
       toast({
-        title: 'Response added',
-        description: 'Your response has been added successfully.',
+        title: 'Ticket updated successfully',
+        description: 'Your changes have been saved.',
       });
     } catch (error: any) {
       toast({
-        title: 'Error adding response',
+        title: 'Error updating ticket',
         description: error.message,
         variant: 'destructive',
       });
@@ -133,7 +127,9 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate }: Tick
   // Update status when ticket changes
   useEffect(() => {
     if (ticket) {
-      setStatus(ticket.status as 'open' | 'in_progress' | 'resolved');
+      const ticketStatus = ticket.status as 'open' | 'in_progress' | 'resolved';
+      setStatus(ticketStatus);
+      setOriginalStatus(ticketStatus);
       fetchResponses();
     }
   }, [ticket?.id]);
@@ -197,21 +193,16 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate }: Tick
           {/* Status Update */}
           <div className="space-y-3 border-t pt-4">
             <h4 className="font-semibold">Update Status</h4>
-            <div className="flex gap-2">
-              <Select value={status} onValueChange={(value) => setStatus(value as 'open' | 'in_progress' | 'resolved')}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="open">Open</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="resolved">Resolved</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button onClick={handleStatusUpdate} disabled={loading || status === ticket.status}>
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Update'}
-              </Button>
-            </div>
+            <Select value={status} onValueChange={(value) => setStatus(value as 'open' | 'in_progress' | 'resolved')}>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="open">Open</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="resolved">Resolved</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Admin Responses */}
@@ -244,14 +235,18 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate }: Tick
                 onChange={(e) => setResponseText(e.target.value)}
                 rows={4}
               />
-              <Button 
-                onClick={handleAddResponse} 
-                disabled={loading || !responseText.trim()}
-                className="w-full"
-              >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add Response'}
-              </Button>
             </div>
+          </div>
+
+          {/* Submit Update Button */}
+          <div className="border-t pt-4">
+            <Button 
+              onClick={handleSubmitUpdate} 
+              disabled={loading || (status === originalStatus && !responseText.trim())}
+              className="w-full"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Submit Update'}
+            </Button>
           </div>
         </div>
       </SheetContent>
