@@ -1,14 +1,29 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TicketCard } from '@/components/shared/TicketCard';
 import { StudentTicketDetailSheet } from '@/components/student/StudentTicketDetailSheet';
 import { useAuth } from '@/hooks/useAuth';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function MyComplaints() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [ticketToDelete, setTicketToDelete] = useState<string | null>(null);
   
   const { data: tickets, isLoading } = useQuery({
     queryKey: ['my-tickets', user?.id],
@@ -58,6 +73,47 @@ export default function MyComplaints() {
   const resolvedTickets = tickets?.filter(t => t.status === 'resolved') || [];
   const followingTickets = upvotedTickets || [];
 
+  const deleteMutation = useMutation({
+    mutationFn: async (ticketId: string) => {
+      const { error } = await supabase
+        .from('tickets')
+        .delete()
+        .eq('id', ticketId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-tickets'] });
+      toast({
+        title: 'Ticket deleted',
+        description: 'Your complaint has been deleted successfully',
+      });
+      setTicketToDelete(null);
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete ticket. Please try again.',
+        variant: 'destructive',
+      });
+      console.error('Delete error:', error);
+    },
+  });
+
+  const handleEdit = (ticket: any) => {
+    navigate('/new-complaint', { state: { editTicket: ticket } });
+  };
+
+  const handleDeleteClick = (ticketId: string) => {
+    setTicketToDelete(ticketId);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (ticketToDelete) {
+      deleteMutation.mutate(ticketToDelete);
+    }
+  };
+
   return (
     <div className="p-6 pb-24 md:pb-6 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold mb-6">My Complaints</h1>
@@ -80,6 +136,9 @@ export default function MyComplaints() {
                 key={ticket.id} 
                 ticket={ticket} 
                 onClick={() => setSelectedTicket(ticket)}
+                currentUserId={user?.id}
+                onEdit={handleEdit}
+                onDelete={handleDeleteClick}
               />
             ))
           )}
@@ -96,6 +155,9 @@ export default function MyComplaints() {
                 key={ticket.id} 
                 ticket={ticket}
                 onClick={() => setSelectedTicket(ticket)}
+                currentUserId={user?.id}
+                onEdit={handleEdit}
+                onDelete={handleDeleteClick}
               />
             ))
           )}
@@ -119,11 +181,28 @@ export default function MyComplaints() {
         </TabsContent>
       </Tabs>
 
-      <StudentTicketDetailSheet
+      <StudentTicketDetailSheet 
         ticket={selectedTicket}
         open={!!selectedTicket}
         onOpenChange={(open) => !open && setSelectedTicket(null)}
       />
+
+      <AlertDialog open={!!ticketToDelete} onOpenChange={(open) => !open && setTicketToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Complaint?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this complaint? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

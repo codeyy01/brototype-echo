@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,7 @@ const complaintSchema = z.object({
 
 const NewComplaint = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -35,6 +36,21 @@ const NewComplaint = () => {
     visibility: 'private' as 'private' | 'public',
   });
   const [file, setFile] = useState<File | null>(null);
+  const [editingTicketId, setEditingTicketId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const editTicket = location.state?.editTicket;
+    if (editTicket) {
+      setEditingTicketId(editTicket.id);
+      setFormData({
+        title: editTicket.title,
+        category: editTicket.category,
+        severity: editTicket.severity,
+        description: editTicket.description,
+        visibility: editTicket.visibility,
+      });
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,22 +111,51 @@ const NewComplaint = () => {
         attachmentUrl = signedUrlData.signedUrl;
       }
 
-      const { error } = await supabase.from('tickets').insert([{
-        title: formData.title,
-        description: formData.description,
-        category: formData.category as 'academic' | 'infrastructure' | 'other',
-        severity: formData.severity as 'low' | 'medium' | 'critical',
-        visibility: formData.visibility,
-        attachment_url: attachmentUrl,
-        created_by: user.id,
-      }]);
+      if (editingTicketId) {
+        // Update existing ticket
+        const updateData: any = {
+          title: formData.title,
+          description: formData.description,
+          category: formData.category as 'academic' | 'infrastructure' | 'other',
+          severity: formData.severity as 'low' | 'medium' | 'critical',
+          visibility: formData.visibility,
+        };
 
-      if (error) throw error;
+        // Only update attachment if a new file was uploaded
+        if (attachmentUrl) {
+          updateData.attachment_url = attachmentUrl;
+        }
 
-      toast({
-        title: 'Success!',
-        description: 'Complaint submitted successfully',
-      });
+        const { error } = await supabase
+          .from('tickets')
+          .update(updateData)
+          .eq('id', editingTicketId);
+
+        if (error) throw error;
+
+        toast({
+          title: 'Success!',
+          description: 'Complaint updated successfully',
+        });
+      } else {
+        // Create new ticket
+        const { error } = await supabase.from('tickets').insert([{
+          title: formData.title,
+          description: formData.description,
+          category: formData.category as 'academic' | 'infrastructure' | 'other',
+          severity: formData.severity as 'low' | 'medium' | 'critical',
+          visibility: formData.visibility,
+          attachment_url: attachmentUrl,
+          created_by: user.id,
+        }]);
+
+        if (error) throw error;
+
+        toast({
+          title: 'Success!',
+          description: 'Complaint submitted successfully',
+        });
+      }
 
       navigate('/my-complaints');
     } catch (error: any) {
@@ -128,7 +173,7 @@ const NewComplaint = () => {
     <div className="container max-w-2xl mx-auto p-6 pb-24 md:pb-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl font-semibold text-foreground">New Complaint</CardTitle>
+          <CardTitle className="text-2xl font-semibold text-foreground">{editingTicketId ? 'Edit Complaint' : 'New Complaint'}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -240,7 +285,7 @@ const NewComplaint = () => {
             </div>
 
             <Button type="submit" disabled={loading} className="w-full">
-              {loading ? 'Submitting...' : 'Submit Complaint'}
+              {loading ? (editingTicketId ? 'Updating...' : 'Submitting...') : (editingTicketId ? 'Update Complaint' : 'Submit Complaint')}
             </Button>
           </form>
         </CardContent>
