@@ -2,6 +2,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { StatusBadge } from './StatusBadge';
 import { SeverityIcon } from './SeverityIcon';
+import { Button } from '@/components/ui/button';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface TicketCardProps {
   ticket: {
@@ -11,12 +13,35 @@ interface TicketCardProps {
     severity: string;
     created_at: string;
     upvote_count?: number;
+    created_by?: string;
   };
   onClick?: () => void;
   showUpvotes?: boolean;
+  currentUserId?: string;
+  onEdit?: (ticket: any) => void;
+  onDelete?: (ticketId: string) => void;
 }
 
-export const TicketCard = ({ ticket, onClick, showUpvotes = false }: TicketCardProps) => {
+export const TicketCard = ({ 
+  ticket, 
+  onClick, 
+  showUpvotes = false,
+  currentUserId,
+  onEdit,
+  onDelete 
+}: TicketCardProps) => {
+  const canEdit = currentUserId && ticket.created_by === currentUserId && ticket.status === 'open';
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit?.(ticket);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete?.(ticket.id);
+  };
+
   return (
     <Card
       className="hover:shadow-md transition-shadow cursor-pointer"
@@ -30,7 +55,29 @@ export const TicketCard = ({ ticket, onClick, showUpvotes = false }: TicketCardP
               {ticket.title}
             </h3>
           </div>
-          <StatusBadge status={ticket.status as any} />
+          <div className="flex items-center gap-2">
+            {canEdit && onEdit && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleEdit}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            )}
+            {canEdit && onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:text-destructive"
+                onClick={handleDelete}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+            <StatusBadge status={ticket.status as any} />
+          </div>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
