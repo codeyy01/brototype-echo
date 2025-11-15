@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TicketCard } from '@/components/shared/TicketCard';
+import { SearchBar } from '@/components/shared/SearchBar';
 import { StudentTicketDetailSheet } from '@/components/student/StudentTicketDetailSheet';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -24,6 +25,7 @@ export default function MyComplaints() {
   const queryClient = useQueryClient();
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [ticketToDelete, setTicketToDelete] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const { data: tickets, isLoading } = useQuery({
     queryKey: ['my-tickets', user?.id],
@@ -73,6 +75,20 @@ export default function MyComplaints() {
   const resolvedTickets = tickets?.filter(t => t.status === 'resolved') || [];
   const followingTickets = upvotedTickets || [];
 
+  const filterTickets = (tickets: any[]) => {
+    if (!searchQuery.trim()) return tickets;
+    
+    const query = searchQuery.toLowerCase();
+    return tickets.filter(ticket => 
+      ticket.title.toLowerCase().includes(query) || 
+      ticket.description.toLowerCase().includes(query)
+    );
+  };
+
+  const filteredActiveTickets = filterTickets(activeTickets);
+  const filteredResolvedTickets = filterTickets(resolvedTickets);
+  const filteredFollowingTickets = filterTickets(followingTickets);
+
   const deleteMutation = useMutation({
     mutationFn: async (ticketId: string) => {
       const { error } = await supabase
@@ -118,20 +134,30 @@ export default function MyComplaints() {
     <div className="p-6 pb-24 md:pb-6 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold mb-6">My Complaints</h1>
       
+      <div className="mb-6">
+        <SearchBar 
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search by title or description..."
+        />
+      </div>
+      
       <Tabs defaultValue="active" className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="active">Active ({activeTickets.length})</TabsTrigger>
-          <TabsTrigger value="resolved">Resolved ({resolvedTickets.length})</TabsTrigger>
-          <TabsTrigger value="following">Following ({followingTickets.length})</TabsTrigger>
+          <TabsTrigger value="active">Active ({filteredActiveTickets.length})</TabsTrigger>
+          <TabsTrigger value="resolved">Resolved ({filteredResolvedTickets.length})</TabsTrigger>
+          <TabsTrigger value="following">Following ({filteredFollowingTickets.length})</TabsTrigger>
         </TabsList>
         
         <TabsContent value="active" className="space-y-4">
           {isLoading ? (
             <p className="text-muted-foreground">Loading...</p>
-          ) : activeTickets.length === 0 ? (
-            <p className="text-muted-foreground">No active complaints. Hope your day's going smoothly 😊</p>
+          ) : filteredActiveTickets.length === 0 ? (
+            <p className="text-muted-foreground">
+              {searchQuery ? 'No matching active complaints found.' : 'No active complaints. Hope your day\'s going smoothly 😊'}
+            </p>
           ) : (
-            activeTickets.map(ticket => (
+            filteredActiveTickets.map(ticket => (
               <TicketCard 
                 key={ticket.id} 
                 ticket={ticket} 
@@ -147,10 +173,12 @@ export default function MyComplaints() {
         <TabsContent value="resolved" className="space-y-4">
           {isLoading ? (
             <p className="text-muted-foreground">Loading...</p>
-          ) : resolvedTickets.length === 0 ? (
-            <p className="text-muted-foreground">No resolved complaints yet.</p>
+          ) : filteredResolvedTickets.length === 0 ? (
+            <p className="text-muted-foreground">
+              {searchQuery ? 'No matching resolved complaints found.' : 'No resolved complaints yet.'}
+            </p>
           ) : (
-            resolvedTickets.map(ticket => (
+            filteredResolvedTickets.map(ticket => (
               <TicketCard 
                 key={ticket.id} 
                 ticket={ticket}
@@ -166,10 +194,12 @@ export default function MyComplaints() {
         <TabsContent value="following" className="space-y-4">
           {isLoadingUpvoted ? (
             <p className="text-muted-foreground">Loading...</p>
-          ) : followingTickets.length === 0 ? (
-            <p className="text-muted-foreground">No issues you're following. Visit the Community tab to find issues to support.</p>
+          ) : filteredFollowingTickets.length === 0 ? (
+            <p className="text-muted-foreground">
+              {searchQuery ? 'No matching tickets found.' : "No issues you're following. Visit the Community tab to find issues to support."}
+            </p>
           ) : (
-            followingTickets.map(ticket => (
+            filteredFollowingTickets.map(ticket => (
               <TicketCard 
                 key={ticket.id} 
                 ticket={ticket}

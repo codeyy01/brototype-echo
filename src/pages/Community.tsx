@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 import { TicketCard } from '@/components/shared/TicketCard';
+import { SearchBar } from '@/components/shared/SearchBar';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { ThumbsUp, Loader2 } from 'lucide-react';
@@ -26,6 +27,7 @@ const Community = () => {
   const [loading, setLoading] = useState(true);
   const [upvoting, setUpvoting] = useState<string | null>(null);
   const [userUpvotes, setUserUpvotes] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchTickets();
@@ -119,6 +121,18 @@ const Community = () => {
     }
   };
 
+  const filterTickets = (tickets: Ticket[]) => {
+    if (!searchQuery.trim()) return tickets;
+    
+    const query = searchQuery.toLowerCase();
+    return tickets.filter(ticket => 
+      ticket.title.toLowerCase().includes(query) || 
+      ticket.description.toLowerCase().includes(query)
+    );
+  };
+
+  const filteredActiveTickets = filterTickets(activeTickets);
+
   if (loading) {
     return (
       <div className="container mx-auto p-6 pb-24 md:pb-6 flex items-center justify-center min-h-[400px]">
@@ -131,13 +145,23 @@ const Community = () => {
     <div className="container mx-auto p-6 pb-24 md:pb-6">
       <h1 className="text-3xl font-semibold text-foreground mb-6">Community Voices</h1>
 
+      <div className="mb-6">
+        <SearchBar 
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search by title or description..."
+        />
+      </div>
+
       <div className="space-y-4">
-        {activeTickets.length === 0 ? (
+        {filteredActiveTickets.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No active community issues yet. Be the first to share!</p>
+            <p className="text-muted-foreground text-lg">
+              {searchQuery ? 'No matching tickets found.' : 'No active public complaints yet. Be the first to share your voice! 🎤'}
+            </p>
           </div>
         ) : (
-          activeTickets.map((ticket) => (
+          filteredActiveTickets.map((ticket) => (
             <div key={ticket.id} className="relative">
               <TicketCard ticket={ticket} />
               <div className="mt-2 flex items-center gap-2">
