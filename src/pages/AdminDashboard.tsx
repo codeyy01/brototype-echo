@@ -3,8 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TicketCard } from '@/components/shared/TicketCard';
 import { TicketDetailSheet } from '@/components/admin/TicketDetailSheet';
+import { SearchBar } from '@/components/shared/SearchBar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CheckCircle } from 'lucide-react';
 
 type Ticket = {
   id: string;
@@ -25,6 +27,8 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [severityFilter, setSeverityFilter] = useState<string>('all');
 
   useEffect(() => {
     fetchTickets();
@@ -66,13 +70,54 @@ const AdminDashboard = () => {
     setSheetOpen(true);
   };
 
-  const openTickets = tickets.filter((t) => t.status === 'open');
-  const inProgressTickets = tickets.filter((t) => t.status === 'in_progress');
-  const resolvedTickets = tickets.filter((t) => t.status === 'resolved');
+  // Filter tickets based on search and severity
+  const filterTickets = (ticketList: Ticket[]) => {
+    return ticketList.filter((ticket) => {
+      const matchesSearch = ticket.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSeverity = severityFilter === 'all' || ticket.severity === severityFilter;
+      return matchesSearch && matchesSeverity;
+    });
+  };
+
+  const openTickets = filterTickets(tickets.filter((t) => t.status === 'open'));
+  const inProgressTickets = filterTickets(tickets.filter((t) => t.status === 'in_progress'));
+  const resolvedTickets = filterTickets(tickets.filter((t) => t.status === 'resolved'));
+
+  const EmptyState = ({ message }: { message: string }) => (
+    <div className="flex flex-col items-center justify-center py-16">
+      <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+      <p className="text-lg font-medium text-foreground">{message}</p>
+      <p className="text-sm text-muted-foreground mt-2">Good job keeping the queue clean!</p>
+    </div>
+  );
 
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-semibold text-foreground mb-6">Admin Dashboard</h1>
+
+      {/* Search and Filter Controls */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex-1">
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Search by title..."
+          />
+        </div>
+        <div className="w-full sm:w-48">
+          <Select value={severityFilter} onValueChange={setSeverityFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by severity" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Severities</SelectItem>
+              <SelectItem value="critical">Critical</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="low">Low</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       <Tabs defaultValue="open" className="space-y-6">
         <TabsList className="bg-sky-50">
@@ -89,9 +134,7 @@ const AdminDashboard = () => {
 
         <TabsContent value="open" className="space-y-4">
           {openTickets.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No open tickets</p>
-            </div>
+            <EmptyState message="All caught up!" />
           ) : (
             openTickets.map((ticket) => (
               <TicketCard 
@@ -106,9 +149,7 @@ const AdminDashboard = () => {
 
         <TabsContent value="in_progress" className="space-y-4">
           {inProgressTickets.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No tickets in progress</p>
-            </div>
+            <EmptyState message="No tickets in progress" />
           ) : (
             inProgressTickets.map((ticket) => (
               <TicketCard 
@@ -123,9 +164,7 @@ const AdminDashboard = () => {
 
         <TabsContent value="resolved" className="space-y-4">
           {resolvedTickets.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No resolved tickets</p>
-            </div>
+            <EmptyState message="No resolved tickets yet" />
           ) : (
             resolvedTickets.map((ticket) => (
               <TicketCard 
