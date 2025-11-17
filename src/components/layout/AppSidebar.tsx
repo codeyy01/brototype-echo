@@ -1,5 +1,5 @@
 import { NavLink } from '@/components/NavLink';
-import { FileText, Plus, Users, User, LayoutDashboard } from 'lucide-react';
+import { FileText, Plus, Users, User, LayoutDashboard, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Sidebar,
@@ -26,6 +26,7 @@ export function AppSidebar() {
 
   const adminItems = [
     { title: 'Dashboard', url: '/admin-dashboard', icon: LayoutDashboard },
+    { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
   ];
 
   const items = role === 'admin' ? adminItems : studentItems;
