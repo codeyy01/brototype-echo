@@ -13,7 +13,7 @@ interface TicketStats {
   byStatus: { status: string; count: number }[];
 }
 
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];
+const COLORS = ['hsl(199 89% 48%)', 'hsl(200 18% 46%)', 'hsl(215 16% 47%)'];
 
 export default function AdminAnalytics() {
   const [stats, setStats] = useState<TicketStats>({
@@ -172,46 +172,27 @@ export default function AdminAnalytics() {
             <CardHeader>
               <CardTitle>Complaints by Category</CardTitle>
             </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={{
-                  academic: {
-                    label: 'Academic',
-                    color: 'hsl(var(--chart-1))',
-                  },
-                  infrastructure: {
-                    label: 'Infrastructure',
-                    color: 'hsl(var(--chart-2))',
-                  },
-                  other: {
-                    label: 'Other',
-                    color: 'hsl(var(--chart-3))',
-                  },
-                }}
-                className="h-[300px]"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={stats.byCategory}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) =>
-                        `${name}: ${(percent * 100).toFixed(0)}%`
-                      }
-                      outerRadius={80}
-                      fill="hsl(var(--chart-1))"
-                      dataKey="value"
-                    >
-                      {stats.byCategory.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </ChartContainer>
+            <CardContent className="w-full h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={stats.byCategory}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) =>
+                      `${name}: ${(percent * 100).toFixed(0)}%`
+                    }
+                    outerRadius={80}
+                    dataKey="value"
+                  >
+                    {stats.byCategory.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                </PieChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
 
@@ -220,27 +201,17 @@ export default function AdminAnalytics() {
             <CardHeader>
               <CardTitle>Activity Overview</CardTitle>
             </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={{
-                  count: {
-                    label: 'Tickets',
-                    color: 'hsl(var(--chart-1))',
-                  },
-                }}
-                className="h-[300px]"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={stats.byStatus}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="status" stroke="hsl(var(--muted-foreground))" />
-                    <YAxis stroke="hsl(var(--muted-foreground))" />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Legend />
-                    <Bar dataKey="count" fill="hsl(var(--chart-1))" name="Tickets" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartContainer>
+            <CardContent className="w-full h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.byStatus}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(200 89% 93%)" />
+                  <XAxis dataKey="status" stroke="hsl(215 16% 47%)" />
+                  <YAxis stroke="hsl(215 16% 47%)" />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Legend />
+                  <Bar dataKey="count" fill="hsl(199 89% 48%)" name="Tickets" />
+                </BarChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
         </div>
