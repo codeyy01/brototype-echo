@@ -38,6 +38,9 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 199 89% 48%;
     --sidebar-border: 200 89% 93%;
     --sidebar-ring: 199 89% 48%;
+    --chart-1: 199 89% 48%;
+    --chart-2: 200 18% 46%;
+    --chart-3: 215 16% 47%;
   }
 }
 
