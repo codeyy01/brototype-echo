@@ -173,26 +173,44 @@ export default function AdminAnalytics() {
               <CardTitle>Complaints by Category</CardTitle>
             </CardHeader>
             <CardContent className="w-full h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={stats.byCategory}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) =>
-                      `${name}: ${(percent * 100).toFixed(0)}%`
-                    }
-                    outerRadius={80}
-                    dataKey="value"
-                  >
-                    {stats.byCategory.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                </PieChart>
-              </ResponsiveContainer>
+              <ChartContainer
+                config={{
+                  academic: {
+                    label: 'Academic',
+                    color: 'hsl(199 89% 48%)',
+                  },
+                  infrastructure: {
+                    label: 'Infrastructure',
+                    color: 'hsl(200 18% 46%)',
+                  },
+                  other: {
+                    label: 'Other',
+                    color: 'hsl(215 16% 47%)',
+                  },
+                }}
+                className="h-full w-full"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={stats.byCategory}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) =>
+                        `${name}: ${(percent * 100).toFixed(0)}%`
+                      }
+                      outerRadius={80}
+                      dataKey="value"
+                    >
+                      {stats.byCategory.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
 
@@ -202,16 +220,26 @@ export default function AdminAnalytics() {
               <CardTitle>Activity Overview</CardTitle>
             </CardHeader>
             <CardContent className="w-full h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.byStatus}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(200 89% 93%)" />
-                  <XAxis dataKey="status" stroke="hsl(215 16% 47%)" />
-                  <YAxis stroke="hsl(215 16% 47%)" />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend />
-                  <Bar dataKey="count" fill="hsl(199 89% 48%)" name="Tickets" />
-                </BarChart>
-              </ResponsiveContainer>
+              <ChartContainer
+                config={{
+                  count: {
+                    label: 'Tickets',
+                    color: 'hsl(199 89% 48%)',
+                  },
+                }}
+                className="h-full w-full"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.byStatus}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(200 89% 93%)" />
+                    <XAxis dataKey="status" stroke="hsl(215 16% 47%)" />
+                    <YAxis stroke="hsl(215 16% 47%)" />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Legend />
+                    <Bar dataKey="count" fill="hsl(199 89% 48%)" name="Tickets" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>
