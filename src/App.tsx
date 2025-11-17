@@ -9,13 +9,14 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { TopNav } from "@/components/layout/TopNav";
-import { FileText, Plus, Users, User, LayoutDashboard } from 'lucide-react';
+import { FileText, Plus, Users, User, LayoutDashboard, BarChart3 } from 'lucide-react';
 import Auth from "./pages/Auth";
 import MyComplaints from "./pages/MyComplaints";
 import NewComplaint from "./pages/NewComplaint";
 import Community from "./pages/Community";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminAnalytics from "./pages/AdminAnalytics";
 import NotFound from "./pages/NotFound";
 
 const studentNavItems = [
@@ -27,6 +28,7 @@ const studentNavItems = [
 
 const adminNavItems = [
   { title: 'Dashboard', url: '/admin-dashboard', icon: LayoutDashboard },
+  { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
   { title: 'Profile', url: '/profile', icon: User },
 ];
 
@@ -92,6 +94,13 @@ const App = () => (
               <ProtectedRoute allowedRoles={['admin']}>
                 <AppLayout>
                   <AdminDashboard />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/analytics" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AppLayout>
+                  <AdminAnalytics />
                 </AppLayout>
               </ProtectedRoute>
             } />
