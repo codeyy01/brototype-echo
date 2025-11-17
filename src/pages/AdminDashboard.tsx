@@ -5,8 +5,13 @@ import { TicketCard } from '@/components/shared/TicketCard';
 import { TicketDetailSheet } from '@/components/admin/TicketDetailSheet';
 import { SearchBar } from '@/components/shared/SearchBar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, CheckCircle } from 'lucide-react';
+import { Loader2, CheckCircle, CalendarIcon, X } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 type Ticket = {
   id: string;
@@ -29,16 +34,42 @@ const AdminDashboard = () => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [severityFilter, setSeverityFilter] = useState<string>('all');
+  const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
     fetchTickets();
-  }, []);
+  }, [searchTerm, severityFilter, dateFilter]);
 
   const fetchTickets = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('tickets')
-        .select('*')
+        .select('*');
+
+      // Apply search filter
+      if (searchTerm) {
+        query = query.ilike('title', `%${searchTerm}%`);
+      }
+
+      // Apply severity filter
+      if (severityFilter !== 'all') {
+        query = query.eq('severity', severityFilter as 'critical' | 'medium' | 'low');
+      }
+
+      // Apply date filter
+      if (dateFilter) {
+        const startOfDay = new Date(dateFilter);
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date(dateFilter);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        query = query
+          .gte('created_at', startOfDay.toISOString())
+          .lte('created_at', endOfDay.toISOString());
+      }
+
+      const { data, error } = await query
         .order('severity', { ascending: false })
         .order('upvote_count', { ascending: false })
         .order('created_at', { ascending: false });
@@ -70,18 +101,9 @@ const AdminDashboard = () => {
     setSheetOpen(true);
   };
 
-  // Filter tickets based on search and severity
-  const filterTickets = (ticketList: Ticket[]) => {
-    return ticketList.filter((ticket) => {
-      const matchesSearch = ticket.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesSeverity = severityFilter === 'all' || ticket.severity === severityFilter;
-      return matchesSearch && matchesSeverity;
-    });
-  };
-
-  const openTickets = filterTickets(tickets.filter((t) => t.status === 'open'));
-  const inProgressTickets = filterTickets(tickets.filter((t) => t.status === 'in_progress'));
-  const resolvedTickets = filterTickets(tickets.filter((t) => t.status === 'resolved'));
+  const openTickets = tickets.filter((t) => t.status === 'open');
+  const inProgressTickets = tickets.filter((t) => t.status === 'in_progress');
+  const resolvedTickets = tickets.filter((t) => t.status === 'resolved');
 
   const EmptyState = ({ message }: { message: string }) => (
     <div className="flex flex-col items-center justify-center py-16">
@@ -116,6 +138,42 @@ const AdminDashboard = () => {
               <SelectItem value="low">Low</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+        <div className="w-full sm:w-48">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !dateFilter && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dateFilter ? format(dateFilter, "PPP") : "Filter by Date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={dateFilter}
+                onSelect={setDateFilter}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+          {dateFilter && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 mt-1"
+              onClick={() => setDateFilter(undefined)}
+            >
+              <X className="h-4 w-4 mr-1" />
+              Clear date
+            </Button>
+          )}
         </div>
       </div>
 
