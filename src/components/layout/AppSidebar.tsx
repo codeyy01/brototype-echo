@@ -27,6 +27,7 @@ export function AppSidebar() {
   const adminItems = [
     { title: 'Dashboard', url: '/admin-dashboard', icon: LayoutDashboard },
     { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
+    { title: 'Profile', url: '/profile', icon: User },
   ];
 
   const items = role === 'admin' ? adminItems : studentItems;
