@@ -19,7 +19,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 export const TopNav = () => {
   const { user, signOut, role } = useAuth();
@@ -37,7 +36,6 @@ export const TopNav = () => {
         <h1 className="text-lg font-semibold flex-shrink-0">BroBox</h1>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          {role === 'student' && <NotificationBell />}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
