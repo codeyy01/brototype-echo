@@ -146,7 +146,10 @@ export function NotificationBell() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Delete all read notifications
+      // Optimistically remove read notifications from UI
+      setNotifications(prev => prev.filter(n => !n.read));
+
+      // Delete all read notifications from database
       const { error } = await supabase
         .from('notifications')
         .delete()
@@ -155,15 +158,14 @@ export function NotificationBell() {
 
       if (error) throw error;
 
-      // Refresh notifications
-      await fetchNotifications();
-
       toast({
         title: 'Success',
         description: 'All read notifications cleared',
       });
     } catch (error) {
       console.error('Error clearing read notifications:', error);
+      // Revert optimistic update on error
+      fetchNotifications();
       toast({
         title: 'Error',
         description: 'Failed to clear read notifications',
@@ -185,30 +187,7 @@ export function NotificationBell() {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
-        {role === 'admin' ? (
-          <div className="p-6 text-center space-y-3">
-            <Bell className="h-12 w-12 mx-auto text-sky-600" />
-            <div>
-              <h3 className="font-semibold text-sky-600 mb-1">
-                Action Required: The Student Voice is loud and clear.
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Your queue is waiting on the Admin Dashboard. Go close some tickets! 🚀
-              </p>
-            </div>
-            <Button 
-              onClick={() => {
-                setOpen(false);
-                navigate('/admin');
-              }}
-              className="w-full"
-            >
-              Go to Dashboard
-            </Button>
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center justify-between border-b px-4 py-3">
+        <div className="flex items-center justify-between border-b px-4 py-3">
               <h3 className="font-semibold">Notifications</h3>
               <div className="flex gap-2">
                 {unreadCount > 0 && (
@@ -259,8 +238,6 @@ export function NotificationBell() {
                 </div>
               )}
             </ScrollArea>
-          </>
-        )}
       </PopoverContent>
     </Popover>
   );
