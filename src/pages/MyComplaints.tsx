@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TicketCard } from '@/components/shared/TicketCard';
 import { SearchBar } from '@/components/shared/SearchBar';
@@ -23,6 +23,7 @@ export default function MyComplaints() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [ticketToDelete, setTicketToDelete] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -88,6 +89,19 @@ export default function MyComplaints() {
   const filteredActiveTickets = filterTickets(activeTickets);
   const filteredResolvedTickets = filterTickets(resolvedTickets);
   const filteredFollowingTickets = filterTickets(followingTickets);
+
+  // Handle opening ticket from notification link
+  useEffect(() => {
+    const ticketId = searchParams.get('ticketId');
+    if (ticketId && tickets) {
+      const ticket = tickets.find(t => t.id === ticketId);
+      if (ticket) {
+        setSelectedTicket(ticket);
+        // Clear the query parameter
+        setSearchParams({});
+      }
+    }
+  }, [searchParams, tickets, setSearchParams]);
 
   const deleteMutation = useMutation({
     mutationFn: async (ticketId: string) => {
