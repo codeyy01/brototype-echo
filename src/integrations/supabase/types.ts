@@ -81,6 +81,33 @@ export type Database = {
           },
         ]
       }
+      global_status: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          status_type: Database["public"]["Enums"]["status_type"]
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          status_type?: Database["public"]["Enums"]["status_type"]
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          status_type?: Database["public"]["Enums"]["status_type"]
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -212,6 +239,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "student"
+      status_type: "info" | "warning" | "critical"
       ticket_category: "academic" | "infrastructure" | "other"
       ticket_severity: "low" | "medium" | "critical"
       ticket_status: "open" | "in_progress" | "resolved"
@@ -344,6 +372,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "student"],
+      status_type: ["info", "warning", "critical"],
       ticket_category: ["academic", "infrastructure", "other"],
       ticket_severity: ["low", "medium", "critical"],
       ticket_status: ["open", "in_progress", "resolved"],

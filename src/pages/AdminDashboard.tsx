@@ -12,6 +12,7 @@ import { toast } from '@/hooks/use-toast';
 import { Loader2, CheckCircle, CalendarIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { GlobalStatusControl } from '@/components/admin/GlobalStatusControl';
 
 type Ticket = {
   id: string;
@@ -116,6 +117,11 @@ const AdminDashboard = () => {
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-semibold text-foreground mb-6">Admin Dashboard</h1>
+
+      {/* Global Status Control */}
+      <div className="mb-6">
+        <GlobalStatusControl />
+      </div>
 
       {/* Search and Filter Controls */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
