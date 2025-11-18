@@ -37,7 +37,7 @@ export const TopNav = () => {
         <h1 className="text-lg font-semibold flex-shrink-0">BroBox</h1>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          <NotificationBell />
+          {role === 'student' && <NotificationBell />}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
