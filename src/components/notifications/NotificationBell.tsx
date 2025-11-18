@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 type Notification = {
   id: string;
@@ -24,6 +25,7 @@ export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { role } = useAuth();
 
   useEffect(() => {
     fetchNotifications();
@@ -139,6 +141,37 @@ export function NotificationBell() {
     }
   };
 
+  const handleClearAllRead = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Delete all read notifications
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('read', true);
+
+      if (error) throw error;
+
+      // Refresh notifications
+      await fetchNotifications();
+
+      toast({
+        title: 'Success',
+        description: 'All read notifications cleared',
+      });
+    } catch (error) {
+      console.error('Error clearing read notifications:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to clear read notifications',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -152,47 +185,82 @@ export function NotificationBell() {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <h3 className="font-semibold">Notifications</h3>
-          {unreadCount > 0 && (
-            <button
-              onClick={handleMarkAllAsRead}
-              className="text-xs text-primary hover:underline"
+        {role === 'admin' ? (
+          <div className="p-6 text-center space-y-3">
+            <Bell className="h-12 w-12 mx-auto text-sky-600" />
+            <div>
+              <h3 className="font-semibold text-sky-600 mb-1">
+                Action Required: The Student Voice is loud and clear.
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Your queue is waiting on the Admin Dashboard. Go close some tickets! 🚀
+              </p>
+            </div>
+            <Button 
+              onClick={() => {
+                setOpen(false);
+                navigate('/admin');
+              }}
+              className="w-full"
             >
-              Mark all as read
-            </button>
-          )}
-        </div>
-        <ScrollArea className="h-[400px]">
-          {notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Bell className="h-12 w-12 text-muted-foreground/50 mb-2" />
-              <p className="text-sm text-muted-foreground">No notifications yet</p>
+              Go to Dashboard
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <h3 className="font-semibold">Notifications</h3>
+              <div className="flex gap-2">
+                {unreadCount > 0 && (
+                  <button
+                    onClick={handleMarkAllAsRead}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Mark all as read
+                  </button>
+                )}
+                {notifications.some(n => n.read) && (
+                  <button
+                    onClick={handleClearAllRead}
+                    className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                  >
+                    Clear All Read
+                  </button>
+                )}
+              </div>
             </div>
-          ) : (
-            <div className="divide-y">
-              {notifications.map((notification) => (
-                <button
-                  key={notification.id}
-                  onClick={() => handleNotificationClick(notification)}
-                  className={`w-full text-left px-4 py-3 hover:bg-accent transition-colors ${
-                    !notification.read ? 'bg-accent/50' : ''
-                  }`}
-                >
-                  <p className="text-sm">{notification.text}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {new Date(notification.created_at).toLocaleDateString(undefined, {
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </p>
-                </button>
-              ))}
-            </div>
-          )}
-        </ScrollArea>
+            <ScrollArea className="h-[400px]">
+              {notifications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <Bell className="h-12 w-12 text-muted-foreground/50 mb-2" />
+                  <p className="text-sm text-muted-foreground">No notifications yet</p>
+                </div>
+              ) : (
+                <div className="divide-y">
+                  {notifications.map((notification) => (
+                    <button
+                      key={notification.id}
+                      onClick={() => handleNotificationClick(notification)}
+                      className={`w-full text-left px-4 py-3 hover:bg-accent transition-colors ${
+                        !notification.read ? 'bg-accent/50' : ''
+                      }`}
+                    >
+                      <p className="text-sm">{notification.text}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(notification.created_at).toLocaleDateString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </>
+        )}
       </PopoverContent>
     </Popover>
   );
