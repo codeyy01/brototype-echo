@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TicketCard } from '@/components/shared/TicketCard';
 import { SearchBar } from '@/components/shared/SearchBar';
 import { StudentTicketDetailSheet } from '@/components/student/StudentTicketDetailSheet';
+import { GlobalStatusBanner } from '@/components/shared/GlobalStatusBanner';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -145,8 +146,10 @@ export default function MyComplaints() {
   };
 
   return (
-    <div className="p-6 pb-24 md:pb-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-semibold mb-6">My Complaints</h1>
+    <>
+      <GlobalStatusBanner />
+      <div className="p-6 pb-24 md:pb-6 max-w-4xl mx-auto">
+        <h1 className="text-3xl font-semibold mb-6">My Complaints</h1>
       
       <div className="mb-6">
         <SearchBar 
@@ -248,5 +251,6 @@ export default function MyComplaints() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+    </>
   );
 }

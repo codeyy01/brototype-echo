@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 import { TicketCard } from '@/components/shared/TicketCard';
 import { SearchBar } from '@/components/shared/SearchBar';
+import { GlobalStatusBanner } from '@/components/shared/GlobalStatusBanner';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { ThumbsUp, Loader2 } from 'lucide-react';
@@ -142,8 +143,10 @@ const Community = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 pb-24 md:pb-6">
-      <h1 className="text-3xl font-semibold text-foreground mb-6">Community Voices</h1>
+    <>
+      <GlobalStatusBanner />
+      <div className="container mx-auto p-6 pb-24 md:pb-6">
+        <h1 className="text-3xl font-semibold text-foreground mb-6">Community Voices</h1>
 
       <div className="mb-6">
         <SearchBar 
@@ -185,6 +188,7 @@ const Community = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

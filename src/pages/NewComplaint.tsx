@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { GlobalStatusBanner } from '@/components/shared/GlobalStatusBanner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -170,8 +171,10 @@ const NewComplaint = () => {
   };
 
   return (
-    <div className="container max-w-2xl mx-auto p-6 pb-24 md:pb-6">
-      <Card>
+    <>
+      <GlobalStatusBanner />
+      <div className="container max-w-2xl mx-auto p-6 pb-24 md:pb-6">
+        <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-semibold text-foreground">{editingTicketId ? 'Edit Complaint' : 'New Complaint'}</CardTitle>
         </CardHeader>
@@ -291,6 +294,7 @@ const NewComplaint = () => {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 };
 
