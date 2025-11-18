@@ -74,21 +74,19 @@ export function NotificationBell() {
 
   const handleNotificationClick = async (notification: Notification) => {
     try {
-      // Mark as read optimistically
-      setNotifications(prev => 
-        prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-
-      // Mark as read in database
+      // Optimistically remove from UI
+      setNotifications(prev => prev.filter(n => n.id !== notification.id));
       if (!notification.read) {
-        const { error } = await supabase
-          .from('notifications')
-          .update({ read: true })
-          .eq('id', notification.id);
-
-        if (error) throw error;
+        setUnreadCount(prev => Math.max(0, prev - 1));
       }
+
+      // Delete from database (auto-delete on read)
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', notification.id);
+
+      if (error) throw error;
 
       // Close popover
       setOpen(false);
@@ -96,88 +94,58 @@ export function NotificationBell() {
       // Navigate to link
       navigate(notification.link);
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error('Error deleting notification:', error);
       // Revert optimistic update on error
       fetchNotifications();
       toast({
         title: 'Error',
-        description: 'Failed to mark notification as read',
+        description: 'Failed to clear notification',
         variant: 'destructive',
       });
     }
   };
 
-  const handleMarkAllAsRead = async () => {
+  const handleClearAll = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Optimistically update UI
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-      setUnreadCount(0);
-
-      // Update all unread notifications in database
-      const { error } = await supabase
-        .from('notifications')
-        .update({ read: true })
-        .eq('user_id', user.id)
-        .eq('read', false);
-
-      if (error) throw error;
-
-      toast({
-        title: 'Success',
-        description: 'All notifications marked as read',
-      });
-    } catch (error) {
-      console.error('Error marking all as read:', error);
-      // Revert optimistic update on error
-      fetchNotifications();
-      toast({
-        title: 'Error',
-        description: 'Failed to mark all as read',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleClearAllRead = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Collect all read notification IDs
-      const readNotificationIds = notifications
-        .filter(n => n.read)
+      // Collect all unread notification IDs
+      const unreadNotificationIds = notifications
+        .filter(n => !n.read)
         .map(n => n.id);
 
-      // Exit early if no read notifications
-      if (readNotificationIds.length === 0) return;
+      // Exit early if no unread notifications
+      if (unreadNotificationIds.length === 0) return;
 
-      // Delete using array-based IN operator for atomic transaction
+      // Optimistically remove from UI
+      setNotifications(prev => prev.filter(n => n.read));
+      setUnreadCount(0);
+
+      // Delete all unread notifications (auto-delete after marking as read)
       const { error } = await supabase
         .from('notifications')
         .delete()
-        .in('id', readNotificationIds);
+        .in('id', unreadNotificationIds);
 
       if (error) throw error;
 
-      // Force re-fetch to sync UI with database
-      await fetchNotifications();
-
       toast({
         title: 'Success',
-        description: 'All read notifications cleared',
+        description: 'All notifications cleared',
       });
     } catch (error) {
-      console.error('Error clearing read notifications:', error);
+      console.error('Error clearing all notifications:', error);
+      // Revert optimistic update on error
+      fetchNotifications();
       toast({
         title: 'Error',
-        description: 'Failed to clear read notifications',
+        description: 'Failed to clear all notifications',
         variant: 'destructive',
       });
     }
   };
+
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -194,24 +162,14 @@ export function NotificationBell() {
       <PopoverContent className="w-80 p-0" align="end">
         <div className="flex items-center justify-between border-b px-4 py-3">
               <h3 className="font-semibold">Notifications</h3>
-              <div className="flex gap-2">
-                {unreadCount > 0 && (
-                  <button
-                    onClick={handleMarkAllAsRead}
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Mark all as read
-                  </button>
-                )}
-                {notifications.some(n => n.read) && (
-                  <button
-                    onClick={handleClearAllRead}
-                    className="text-xs text-muted-foreground hover:text-foreground hover:underline"
-                  >
-                    Clear All Read
-                  </button>
-                )}
-              </div>
+              {unreadCount > 0 && (
+                <button
+                  onClick={handleClearAll}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Clear All
+                </button>
+              )}
             </div>
             <ScrollArea className="h-[400px]">
               {notifications.length === 0 ? (
