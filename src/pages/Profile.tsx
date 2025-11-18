@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { GlobalStatusBanner } from '@/components/shared/GlobalStatusBanner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,9 +17,7 @@ export default function Profile() {
   const { user, signOut } = useAuth();
 
   return (
-    <>
-      <GlobalStatusBanner />
-      <div className="p-6 pb-24 md:pb-6 max-w-2xl mx-auto">
+    <div className="p-6 pb-24 md:pb-6 max-w-2xl mx-auto">
         <h1 className="text-3xl font-semibold mb-6">Profile</h1>
       
       <Card>
@@ -57,6 +54,5 @@ export default function Profile() {
         </CardContent>
       </Card>
     </div>
-    </>
   );
 }
