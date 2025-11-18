@@ -81,33 +81,6 @@ export type Database = {
           },
         ]
       }
-      global_status: {
-        Row: {
-          created_at: string
-          id: string
-          message: string
-          status_type: Database["public"]["Enums"]["status_type"]
-          updated_at: string
-          updated_by: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          message: string
-          status_type?: Database["public"]["Enums"]["status_type"]
-          updated_at?: string
-          updated_by: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          message?: string
-          status_type?: Database["public"]["Enums"]["status_type"]
-          updated_at?: string
-          updated_by?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           created_at: string
