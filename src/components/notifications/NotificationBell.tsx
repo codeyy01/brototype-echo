@@ -146,10 +146,7 @@ export function NotificationBell() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Optimistically remove read notifications from UI
-      setNotifications(prev => prev.filter(n => !n.read));
-
-      // Delete all read notifications from database
+      // Delete all read notifications from database using notification ID
       const { error } = await supabase
         .from('notifications')
         .delete()
@@ -158,14 +155,15 @@ export function NotificationBell() {
 
       if (error) throw error;
 
+      // Force re-fetch to sync UI with database
+      await fetchNotifications();
+
       toast({
         title: 'Success',
         description: 'All read notifications cleared',
       });
     } catch (error) {
       console.error('Error clearing read notifications:', error);
-      // Revert optimistic update on error
-      fetchNotifications();
       toast({
         title: 'Error',
         description: 'Failed to clear read notifications',
