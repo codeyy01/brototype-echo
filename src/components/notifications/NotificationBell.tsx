@@ -146,12 +146,19 @@ export function NotificationBell() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Delete all read notifications from database using notification ID
+      // Collect all read notification IDs
+      const readNotificationIds = notifications
+        .filter(n => n.read)
+        .map(n => n.id);
+
+      // Exit early if no read notifications
+      if (readNotificationIds.length === 0) return;
+
+      // Delete using array-based IN operator for atomic transaction
       const { error } = await supabase
         .from('notifications')
         .delete()
-        .eq('user_id', user.id)
-        .eq('read', true);
+        .in('id', readNotificationIds);
 
       if (error) throw error;
 
