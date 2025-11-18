@@ -72,7 +72,13 @@ export function NotificationBell() {
 
   const handleNotificationClick = async (notification: Notification) => {
     try {
-      // Mark as read
+      // Mark as read optimistically
+      setNotifications(prev => 
+        prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+
+      // Mark as read in database
       if (!notification.read) {
         const { error } = await supabase
           .from('notifications')
@@ -89,9 +95,45 @@ export function NotificationBell() {
       navigate(notification.link);
     } catch (error) {
       console.error('Error marking notification as read:', error);
+      // Revert optimistic update on error
+      fetchNotifications();
       toast({
         title: 'Error',
         description: 'Failed to mark notification as read',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Optimistically update UI
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+
+      // Update all unread notifications in database
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('user_id', user.id)
+        .eq('read', false);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'All notifications marked as read',
+      });
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+      // Revert optimistic update on error
+      fetchNotifications();
+      toast({
+        title: 'Error',
+        description: 'Failed to mark all as read',
         variant: 'destructive',
       });
     }
@@ -113,9 +155,12 @@ export function NotificationBell() {
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h3 className="font-semibold">Notifications</h3>
           {unreadCount > 0 && (
-            <span className="text-xs text-muted-foreground">
-              {unreadCount} unread
-            </span>
+            <button
+              onClick={handleMarkAllAsRead}
+              className="text-xs text-primary hover:underline"
+            >
+              Mark all as read
+            </button>
           )}
         </div>
         <ScrollArea className="h-[400px]">

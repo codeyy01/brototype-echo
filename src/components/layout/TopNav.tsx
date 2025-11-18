@@ -34,9 +34,9 @@ export const TopNav = () => {
   return (
     <>
       <header className="h-14 border-b border-border bg-card flex items-center justify-between px-4 sticky top-0 z-40">
-        <h1 className="text-lg font-semibold">BroBox</h1>
+        <h1 className="text-lg font-semibold flex-shrink-0">BroBox</h1>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <NotificationBell />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
