@@ -10,10 +10,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -63,11 +61,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <div className="flex items-center justify-center p-2">
-          <NotificationBell />
-        </div>
-      </SidebarFooter>
     </Sidebar>
   );
 }
