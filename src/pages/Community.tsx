@@ -7,6 +7,7 @@ import { SearchBar } from '@/components/shared/SearchBar';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { ThumbsUp, Loader2 } from 'lucide-react';
+import { StudentTicketDetailSheet } from '@/components/student/StudentTicketDetailSheet';
 
 type Ticket = {
   id: string;
@@ -28,6 +29,8 @@ const Community = () => {
   const [upvoting, setUpvoting] = useState<string | null>(null);
   const [userUpvotes, setUserUpvotes] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   useEffect(() => {
     fetchTickets();
@@ -121,6 +124,11 @@ const Community = () => {
     }
   };
 
+  const handleTicketClick = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setIsSheetOpen(true);
+  };
+
   const filterTickets = (tickets: Ticket[]) => {
     if (!searchQuery.trim()) return tickets;
     
@@ -163,7 +171,7 @@ const Community = () => {
         ) : (
           filteredActiveTickets.map((ticket) => (
             <div key={ticket.id} className="relative">
-              <TicketCard ticket={ticket} />
+              <TicketCard ticket={ticket} onClick={() => handleTicketClick(ticket)} />
               <div className="mt-2 flex items-center gap-2">
                 <Button
                   variant={userUpvotes.has(ticket.id) ? 'default' : 'outline'}
@@ -184,6 +192,12 @@ const Community = () => {
           ))
         )}
       </div>
+
+      <StudentTicketDetailSheet
+        ticket={selectedTicket}
+        open={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+      />
     </div>
   );
 };
