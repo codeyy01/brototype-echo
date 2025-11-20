@@ -78,10 +78,10 @@ export const StudentTicketDetailSheet = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
-          <SheetTitle className="flex items-start gap-3">
+          <div className="flex items-start gap-3 mb-4">
             <SeverityIcon severity={ticket.severity as any} />
-            <span className="flex-1">{ticket.title}</span>
-          </SheetTitle>
+            <h2 className="flex-1 text-xl md:text-2xl font-bold text-foreground">{ticket.title}</h2>
+          </div>
           {!isPublicView && (
             <SheetDescription>View your complaint details and admin responses</SheetDescription>
           )}
@@ -92,38 +92,34 @@ export const StudentTicketDetailSheet = ({
 
         <div className="mt-6 space-y-6">
           {/* Status and Info */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap gap-2 mb-3">
             <StatusBadge status={ticket.status as any} />
-            <span className="text-sm text-muted-foreground">
+            <Badge className="bg-primary/10 text-primary border border-primary/30 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize">
+              {ticket.category}
+            </Badge>
+            <Badge className="bg-primary/10 text-primary border border-primary/30 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize">
+              {ticket.severity}
+            </Badge>
+            <span className="text-sm text-muted-foreground ml-auto">
               {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
             </span>
           </div>
 
-          {/* Category and Severity */}
-          <div className="flex gap-2">
-            <Badge variant="outline" className="capitalize">
-              {ticket.category}
-            </Badge>
-            <Badge variant="outline" className="capitalize">
-              {ticket.severity}
-            </Badge>
-          </div>
-
           {/* Description */}
-          <div className="space-y-2">
-            <h3 className="font-semibold">Description</h3>
-            <p className="text-muted-foreground whitespace-pre-wrap">{ticket.description}</p>
+          <div className="bg-muted border border-border rounded-xl p-3 md:p-5">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Description</h3>
+            <p className="text-sm md:text-base text-foreground leading-relaxed whitespace-pre-wrap break-words">{ticket.description}</p>
           </div>
 
           {/* Attachment */}
           {ticket.attachment_url && (
-            <div className="space-y-2">
-              <h3 className="font-semibold">Attachment</h3>
+            <div className="bg-muted border border-border rounded-xl p-3 md:p-5">
+              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Attachment</h3>
               <a
                 href={ticket.attachment_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:underline"
+                className="text-primary hover:underline text-sm md:text-base"
               >
                 View attachment
               </a>
@@ -132,21 +128,25 @@ export const StudentTicketDetailSheet = ({
 
           {/* Admin Responses */}
           {!isPublicView && (
-            <div className="space-y-3">
-              <h3 className="font-semibold">Admin Responses</h3>
+            <div className="bg-muted border border-border rounded-xl p-3 md:p-5">
+              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3 block">Admin Responses</h3>
               {loading ? (
-                <p className="text-sm text-muted-foreground">Loading responses...</p>
+                <div className="py-8 text-center">
+                  <p className="text-sm text-muted-foreground">Loading responses...</p>
+                </div>
               ) : responses.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No admin responses yet.</p>
+                <div className="py-8 text-center">
+                  <p className="text-sm text-muted-foreground">No admin responses yet.</p>
+                </div>
               ) : (
                 <ScrollArea className="max-h-[300px]">
                   <div className="space-y-3 pr-4">
                     {responses.map((response) => (
                       <div
                         key={response.id}
-                        className="bg-muted p-3 rounded-lg space-y-1"
+                        className="bg-background border border-border shadow-sm p-3 rounded-lg space-y-1"
                       >
-                        <p className="text-sm whitespace-pre-wrap">{response.text}</p>
+                        <p className="text-sm md:text-base text-foreground whitespace-pre-wrap break-words">{response.text}</p>
                         <p className="text-xs text-muted-foreground">
                           {formatDistanceToNow(new Date(response.created_at), { addSuffix: true })}
                         </p>
