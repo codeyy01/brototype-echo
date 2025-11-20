@@ -61,8 +61,8 @@ export const TicketCard = ({
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${getSeverityColor()}`} />
       
       <CardHeader className="pb-3 pl-6">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-start gap-3 flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start gap-2 flex-1 min-w-0">
             <SeverityIcon severity={ticket.severity as any} />
             <div className="flex-1 min-w-0">
               <h3 className="text-slate-800 font-semibold text-lg tracking-tight line-clamp-1">
@@ -75,7 +75,7 @@ export const TicketCard = ({
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0 ml-2">
             {canEdit && onEdit && (
               <Button
                 variant="ghost"
