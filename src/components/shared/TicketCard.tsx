@@ -1,11 +1,9 @@
-import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { StatusBadge } from './StatusBadge';
 import { SeverityIcon } from './SeverityIcon';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TicketCardProps {
   ticket: {
@@ -33,9 +31,6 @@ export const TicketCard = ({
   onEdit,
   onDelete 
 }: TicketCardProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const isMobile = useIsMobile();
   const canEdit = currentUserId && ticket.created_by === currentUserId && ticket.status === 'open';
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -48,59 +43,39 @@ export const TicketCard = ({
     onDelete?.(ticket.id);
   };
 
-  const handleToggleExpand = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsExpanded(!isExpanded);
-  };
-
-  const handleToggleDescriptionExpand = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsDescriptionExpanded(!isDescriptionExpanded);
+  const getSeverityColor = () => {
+    switch (ticket.severity) {
+      case 'critical': return 'bg-red-500';
+      case 'medium': return 'bg-yellow-500';
+      case 'low': return 'bg-green-500';
+      default: return 'bg-slate-300';
+    }
   };
 
   return (
     <Card
-      className="hover:shadow-md transition-shadow cursor-pointer"
+      className="bg-white rounded-xl border border-slate-100 shadow-sm relative overflow-hidden hover:shadow-md hover:border-sky-100 transition-all duration-300 ease-out cursor-pointer"
       onClick={onClick}
     >
-      <CardHeader className="pb-3">
+      {/* Severity Strip */}
+      <div className={`absolute left-0 top-0 bottom-0 w-1 ${getSeverityColor()}`} />
+      
+      <CardHeader className="pb-3 pl-6">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1 min-w-0">
             <SeverityIcon severity={ticket.severity as any} />
             <div className="flex-1 min-w-0">
-              <h3 className={`font-semibold text-foreground ${isExpanded || !isMobile ? 'break-words' : ''}`}>
-                {isMobile && !isExpanded && ticket.title.length > 10
-                  ? `${ticket.title.substring(0, 10)}...`
-                  : ticket.title}
+              <h3 className="text-slate-800 font-semibold text-lg tracking-tight line-clamp-1">
+                {ticket.title}
               </h3>
-              {isMobile && ticket.title.length > 10 && (
-                <button
-                  onClick={handleToggleExpand}
-                  className="text-sm text-primary hover:underline mt-1 font-medium"
-                >
-                  {isExpanded ? 'Show Less' : 'Read More'}
-                </button>
-              )}
               {ticket.description && (
-                <>
-                  <p className="text-sm text-muted-foreground mt-2 break-words">
-                    {isMobile && !isDescriptionExpanded && ticket.description.length > 50
-                      ? `${ticket.description.substring(0, 50)}...`
-                      : ticket.description}
-                  </p>
-                  {isMobile && ticket.description.length > 50 && (
-                    <button
-                      onClick={handleToggleDescriptionExpand}
-                      className="text-sm text-primary hover:underline mt-1 font-medium"
-                    >
-                      {isDescriptionExpanded ? 'Show Less' : 'Read More'}
-                    </button>
-                  )}
-                </>
+                <p className="text-slate-500 text-sm leading-relaxed mt-2 line-clamp-2 md:line-clamp-3">
+                  {ticket.description}
+                </p>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {canEdit && onEdit && (
               <Button
                 variant="ghost"
@@ -125,8 +100,8 @@ export const TicketCard = ({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
+      <CardContent className="pt-0 pl-6">
+        <div className="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider">
           <span>
             {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
           </span>
