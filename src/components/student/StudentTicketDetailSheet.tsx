@@ -36,12 +36,14 @@ interface StudentTicketDetailSheetProps {
   ticket: Ticket | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  isPublicView?: boolean;
 }
 
 export const StudentTicketDetailSheet = ({
   ticket,
   open,
   onOpenChange,
+  isPublicView = false,
 }: StudentTicketDetailSheetProps) => {
   const [responses, setResponses] = useState<AdminResponse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -80,7 +82,12 @@ export const StudentTicketDetailSheet = ({
             <SeverityIcon severity={ticket.severity as any} />
             <span className="flex-1">{ticket.title}</span>
           </SheetTitle>
-          <SheetDescription>View your complaint details and admin responses</SheetDescription>
+          {!isPublicView && (
+            <SheetDescription>View your complaint details and admin responses</SheetDescription>
+          )}
+          {isPublicView && (
+            <SheetDescription>Community Ticket</SheetDescription>
+          )}
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
@@ -124,30 +131,32 @@ export const StudentTicketDetailSheet = ({
           )}
 
           {/* Admin Responses */}
-          <div className="space-y-3">
-            <h3 className="font-semibold">Admin Responses</h3>
-            {loading ? (
-              <p className="text-sm text-muted-foreground">Loading responses...</p>
-            ) : responses.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No admin responses yet.</p>
-            ) : (
-              <ScrollArea className="max-h-[300px]">
-                <div className="space-y-3 pr-4">
-                  {responses.map((response) => (
-                    <div
-                      key={response.id}
-                      className="bg-muted p-3 rounded-lg space-y-1"
-                    >
-                      <p className="text-sm whitespace-pre-wrap">{response.text}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(response.created_at), { addSuffix: true })}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            )}
-          </div>
+          {!isPublicView && (
+            <div className="space-y-3">
+              <h3 className="font-semibold">Admin Responses</h3>
+              {loading ? (
+                <p className="text-sm text-muted-foreground">Loading responses...</p>
+              ) : responses.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No admin responses yet.</p>
+              ) : (
+                <ScrollArea className="max-h-[300px]">
+                  <div className="space-y-3 pr-4">
+                    {responses.map((response) => (
+                      <div
+                        key={response.id}
+                        className="bg-muted p-3 rounded-lg space-y-1"
+                      >
+                        <p className="text-sm whitespace-pre-wrap">{response.text}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(response.created_at), { addSuffix: true })}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              )}
+            </div>
+          )}
         </div>
       </SheetContent>
     </Sheet>

@@ -197,6 +197,7 @@ const Community = () => {
         ticket={selectedTicket}
         open={isSheetOpen}
         onOpenChange={setIsSheetOpen}
+        isPublicView={true}
       />
     </div>
   );
