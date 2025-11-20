@@ -62,15 +62,17 @@ export const TicketCard = ({
           <div className="flex items-start gap-3 flex-1 min-w-0">
             <SeverityIcon severity={ticket.severity as any} />
             <div className="flex-1 min-w-0">
-              <h3 className={`font-semibold text-foreground ${isMobile && !isExpanded ? 'line-clamp-3' : ''}`}>
-                {ticket.title}
+              <h3 className={`font-semibold text-foreground ${isExpanded || !isMobile ? 'break-words' : ''}`}>
+                {isMobile && !isExpanded && ticket.title.length > 10
+                  ? `${ticket.title.substring(0, 10)}...`
+                  : ticket.title}
               </h3>
               {ticket.description && (
-                <p className={`text-sm text-muted-foreground mt-2 ${isMobile && !isExpanded ? 'line-clamp-3' : ''}`}>
+                <p className="text-sm text-muted-foreground mt-2 break-words">
                   {ticket.description}
                 </p>
               )}
-              {isMobile && (ticket.title.length > 100 || (ticket.description && ticket.description.length > 100)) && (
+              {isMobile && ticket.title.length > 10 && (
                 <button
                   onClick={handleToggleExpand}
                   className="text-sm text-primary hover:underline mt-1 font-medium"
