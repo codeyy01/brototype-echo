@@ -34,6 +34,7 @@ export const TicketCard = ({
   onDelete 
 }: TicketCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const isMobile = useIsMobile();
   const canEdit = currentUserId && ticket.created_by === currentUserId && ticket.status === 'open';
 
@@ -52,6 +53,11 @@ export const TicketCard = ({
     setIsExpanded(!isExpanded);
   };
 
+  const handleToggleDescriptionExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDescriptionExpanded(!isDescriptionExpanded);
+  };
+
   return (
     <Card
       className="hover:shadow-md transition-shadow cursor-pointer"
@@ -67,11 +73,6 @@ export const TicketCard = ({
                   ? `${ticket.title.substring(0, 10)}...`
                   : ticket.title}
               </h3>
-              {ticket.description && (
-                <p className="text-sm text-muted-foreground mt-2 break-words">
-                  {ticket.description}
-                </p>
-              )}
               {isMobile && ticket.title.length > 10 && (
                 <button
                   onClick={handleToggleExpand}
@@ -79,6 +80,23 @@ export const TicketCard = ({
                 >
                   {isExpanded ? 'Show Less' : 'Read More'}
                 </button>
+              )}
+              {ticket.description && (
+                <>
+                  <p className="text-sm text-muted-foreground mt-2 break-words">
+                    {isMobile && !isDescriptionExpanded && ticket.description.length > 50
+                      ? `${ticket.description.substring(0, 50)}...`
+                      : ticket.description}
+                  </p>
+                  {isMobile && ticket.description.length > 50 && (
+                    <button
+                      onClick={handleToggleDescriptionExpand}
+                      className="text-sm text-primary hover:underline mt-1 font-medium"
+                    >
+                      {isDescriptionExpanded ? 'Show Less' : 'Read More'}
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </div>
