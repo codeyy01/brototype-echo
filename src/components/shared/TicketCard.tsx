@@ -1,14 +1,17 @@
+import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { StatusBadge } from './StatusBadge';
 import { SeverityIcon } from './SeverityIcon';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TicketCardProps {
   ticket: {
     id: string;
     title: string;
+    description?: string;
     status: string;
     severity: string;
     created_at: string;
@@ -30,6 +33,8 @@ export const TicketCard = ({
   onEdit,
   onDelete 
 }: TicketCardProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const isMobile = useIsMobile();
   const canEdit = currentUserId && ticket.created_by === currentUserId && ticket.status === 'open';
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -42,6 +47,11 @@ export const TicketCard = ({
     onDelete?.(ticket.id);
   };
 
+  const handleToggleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
+
   return (
     <Card
       className="hover:shadow-md transition-shadow cursor-pointer"
@@ -51,9 +61,24 @@ export const TicketCard = ({
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1 min-w-0">
             <SeverityIcon severity={ticket.severity as any} />
-            <h3 className="font-semibold text-foreground line-clamp-2 flex-1">
-              {ticket.title}
-            </h3>
+            <div className="flex-1 min-w-0">
+              <h3 className={`font-semibold text-foreground ${isMobile && !isExpanded ? 'line-clamp-3' : ''}`}>
+                {ticket.title}
+              </h3>
+              {ticket.description && (
+                <p className={`text-sm text-muted-foreground mt-2 ${isMobile && !isExpanded ? 'line-clamp-3' : ''}`}>
+                  {ticket.description}
+                </p>
+              )}
+              {isMobile && (ticket.title.length > 100 || (ticket.description && ticket.description.length > 100)) && (
+                <button
+                  onClick={handleToggleExpand}
+                  className="text-sm text-primary hover:underline mt-1 font-medium"
+                >
+                  {isExpanded ? 'Show Less' : 'Read More'}
+                </button>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {canEdit && onEdit && (
