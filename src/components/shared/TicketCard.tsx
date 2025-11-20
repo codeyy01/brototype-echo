@@ -4,6 +4,7 @@ import { StatusBadge } from './StatusBadge';
 import { SeverityIcon } from './SeverityIcon';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TicketCardProps {
   ticket: {
@@ -31,7 +32,13 @@ export const TicketCard = ({
   onEdit,
   onDelete 
 }: TicketCardProps) => {
+  const isMobile = useIsMobile();
   const canEdit = currentUserId && ticket.created_by === currentUserId && ticket.status === 'open';
+
+  const truncateText = (text: string) => {
+    if (!isMobile) return text;
+    return text.length > 10 ? text.slice(0, 10) + '...' : text;
+  };
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -65,12 +72,12 @@ export const TicketCard = ({
           <div className="flex items-start gap-2 flex-1 min-w-0">
             <SeverityIcon severity={ticket.severity as any} />
             <div className="flex-1 min-w-0">
-              <h3 className="text-slate-800 font-semibold text-lg tracking-tight line-clamp-1">
-                {ticket.title}
+              <h3 className={`text-slate-800 font-semibold text-lg tracking-tight ${isMobile ? 'whitespace-nowrap' : 'line-clamp-1'}`}>
+                {truncateText(ticket.title)}
               </h3>
               {ticket.description && (
-                <p className="text-slate-500 text-sm leading-relaxed mt-2 line-clamp-2 md:line-clamp-3">
-                  {ticket.description}
+                <p className={`text-slate-500 text-sm leading-relaxed mt-2 ${isMobile ? 'whitespace-nowrap' : 'line-clamp-2 md:line-clamp-3'}`}>
+                  {truncateText(ticket.description)}
                 </p>
               )}
             </div>
