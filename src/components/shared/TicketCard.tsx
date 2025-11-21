@@ -22,6 +22,7 @@ interface TicketCardProps {
   currentUserId?: string;
   onEdit?: (ticket: any) => void;
   onDelete?: (ticketId: string) => void;
+  className?: string;
 }
 
 export const TicketCard = ({ 
@@ -30,7 +31,8 @@ export const TicketCard = ({
   showUpvotes = false,
   currentUserId,
   onEdit,
-  onDelete 
+  onDelete,
+  className
 }: TicketCardProps) => {
   const isMobile = useIsMobile();
   const canEdit = currentUserId && ticket.created_by === currentUserId && ticket.status === 'open';
@@ -62,7 +64,7 @@ export const TicketCard = ({
     <div
       className={`w-full max-w-full bg-background rounded-xl shadow-sm border border-border hover:shadow-md transition-all overflow-hidden border-l-4 cursor-pointer ${
         severityColors[ticket.severity as keyof typeof severityColors]
-      }`}
+      } ${className || ''}`}
       onClick={onClick}
     >
       {/* Card Content */}

@@ -190,46 +190,55 @@ const AdminDashboard = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="open" className="space-y-4">
+        <TabsContent value="open" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-4 xl:gap-6">
           {openTickets.length === 0 ? (
-            <EmptyState message="All caught up!" />
+            <div className="col-span-full">
+              <EmptyState message="All caught up!" />
+            </div>
           ) : (
             openTickets.map((ticket) => (
               <TicketCard 
                 key={ticket.id} 
                 ticket={ticket} 
                 onClick={() => handleTicketClick(ticket)}
-                showUpvotes 
+                showUpvotes
+                className="h-full"
               />
             ))
           )}
         </TabsContent>
 
-        <TabsContent value="in_progress" className="space-y-4">
+        <TabsContent value="in_progress" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-4 xl:gap-6">
           {inProgressTickets.length === 0 ? (
-            <EmptyState message="No tickets in progress" />
+            <div className="col-span-full">
+              <EmptyState message="No tickets in progress" />
+            </div>
           ) : (
             inProgressTickets.map((ticket) => (
               <TicketCard 
                 key={ticket.id} 
                 ticket={ticket} 
                 onClick={() => handleTicketClick(ticket)}
-                showUpvotes 
+                showUpvotes
+                className="h-full"
               />
             ))
           )}
         </TabsContent>
 
-        <TabsContent value="resolved" className="space-y-4">
+        <TabsContent value="resolved" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-4 xl:gap-6">
           {resolvedTickets.length === 0 ? (
-            <EmptyState message="No resolved tickets yet" />
+            <div className="col-span-full">
+              <EmptyState message="No resolved tickets yet" />
+            </div>
           ) : (
             resolvedTickets.map((ticket) => (
               <TicketCard 
                 key={ticket.id} 
                 ticket={ticket} 
                 onClick={() => handleTicketClick(ticket)}
-                showUpvotes 
+                showUpvotes
+                className="h-full"
               />
             ))
           )}
