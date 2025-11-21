@@ -178,14 +178,23 @@ const AdminDashboard = () => {
       </div>
 
       <Tabs defaultValue="open" className="space-y-6">
-        <TabsList className="bg-sky-50">
-          <TabsTrigger value="open" className="data-[state=active]:bg-background">
+        <TabsList className="bg-slate-100">
+          <TabsTrigger 
+            value="open" 
+            className="text-slate-500 hover:text-slate-700 data-[state=active]:bg-white data-[state=active]:text-sky-600 data-[state=active]:shadow-sm relative z-10"
+          >
             Open ({openTickets.length})
           </TabsTrigger>
-          <TabsTrigger value="in_progress" className="data-[state=active]:bg-background">
+          <TabsTrigger 
+            value="in_progress" 
+            className="text-slate-500 hover:text-slate-700 data-[state=active]:bg-white data-[state=active]:text-sky-600 data-[state=active]:shadow-sm relative z-10"
+          >
             In Progress ({inProgressTickets.length})
           </TabsTrigger>
-          <TabsTrigger value="resolved" className="data-[state=active]:bg-background">
+          <TabsTrigger 
+            value="resolved" 
+            className="text-slate-500 hover:text-slate-700 data-[state=active]:bg-white data-[state=active]:text-sky-600 data-[state=active]:shadow-sm relative z-10"
+          >
             Resolved ({resolvedTickets.length})
           </TabsTrigger>
         </TabsList>
