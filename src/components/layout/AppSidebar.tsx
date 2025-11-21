@@ -1,6 +1,8 @@
 import { NavLink } from '@/components/NavLink';
 import { FileText, Plus, Users, User, LayoutDashboard, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import {
   Sidebar,
   SidebarContent,
@@ -17,41 +19,52 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const { role } = useAuth();
 
-  const studentItems = [
+  const studentNavItems = [
     { title: 'My Complaints', url: '/my-complaints', icon: FileText },
-    { title: 'New Complaint', url: '/new-complaint', icon: Plus },
     { title: 'Community', url: '/community', icon: Users },
     { title: 'Profile', url: '/profile', icon: User },
   ];
 
-  const adminItems = [
+  const adminNavItems = [
     { title: 'Dashboard', url: '/admin-dashboard', icon: LayoutDashboard },
     { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
     { title: 'Profile', url: '/profile', icon: User },
   ];
 
-  const items = role === 'admin' ? adminItems : studentItems;
+  const navItems = role === 'admin' ? adminNavItems : studentNavItems;
   const isCollapsed = state === 'collapsed';
 
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
-        <SidebarGroup>
+        {/* Primary CTA for Students */}
+        {role === 'student' && !isCollapsed && (
+          <div className="px-4 pt-4 pb-2">
+            <Button asChild className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 rounded-xl shadow-sm transition-all">
+              <Link to="/new-complaint" className="flex items-center justify-center gap-2">
+                <Plus className="w-5 h-5" />
+                <span>New Complaint</span>
+              </Link>
+            </Button>
+          </div>
+        )}
+
+        <SidebarGroup className={role === 'student' && !isCollapsed ? 'mt-6' : ''}>
           <SidebarGroupLabel>
-            {role === 'admin' ? 'Admin' : 'Student Portal'}
+            {role === 'admin' ? 'Admin' : 'Navigation'}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {navItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
                       end
-                      className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold"
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 rounded-lg transition-colors hover:bg-slate-50 hover:text-slate-900"
+                      activeClassName="bg-sky-50 text-sky-700 font-semibold"
                     >
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className="w-5 h-5" />
                       <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
