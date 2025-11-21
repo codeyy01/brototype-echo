@@ -49,18 +49,20 @@ export const CommunityTicketCard = ({
 
   return (
     <div
-      className={`bg-background rounded-xl shadow-sm border border-border hover:shadow-md transition-all overflow-hidden border-l-4 ${
+      className={`w-full max-w-full bg-background rounded-xl shadow-sm border border-border hover:shadow-md transition-all overflow-hidden border-l-4 ${
         severityColors[ticket.severity as keyof typeof severityColors]
       }`}
     >
       {/* Card Content */}
-      <div className="p-4 md:p-5">
+      <div className="p-4 md:p-5 w-full max-w-full">
         {/* Header with Severity Icon and Status */}
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-start gap-3 flex-1 min-w-0">
-            <SeverityIcon severity={ticket.severity as any} />
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-foreground text-base md:text-lg mb-1 whitespace-nowrap overflow-hidden text-ellipsis">
+        <div className="flex items-start justify-between gap-3 mb-3 w-full max-w-full">
+          <div className="flex items-start gap-3 flex-1 min-w-0 max-w-full">
+            <div className="flex-shrink-0">
+              <SeverityIcon severity={ticket.severity as any} />
+            </div>
+            <div className="flex-1 min-w-0 max-w-full">
+              <h3 className="font-bold text-foreground text-base md:text-lg mb-1 break-words overflow-wrap-anywhere">
                 {isMobile ? truncateText(ticket.title, 10) : ticket.title}
               </h3>
               <div className="flex flex-wrap gap-2 items-center">
@@ -77,12 +79,12 @@ export const CommunityTicketCard = ({
         </div>
 
         {/* Description */}
-        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-4 whitespace-nowrap md:whitespace-normal">
+        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-4 break-words overflow-wrap-anywhere w-full max-w-full">
           {isMobile ? truncateText(ticket.description, 10) : ticket.description}
         </p>
 
         {/* Footer with Actions */}
-        <div className="flex items-center justify-between gap-3 pt-3 border-t border-border">
+        <div className="flex items-center justify-between gap-3 pt-3 border-t border-border flex-wrap w-full max-w-full">
           {/* Me Too Button */}
           <Button
             variant="ghost"
