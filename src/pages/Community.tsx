@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
-import { TicketCard } from '@/components/shared/TicketCard';
+import { CommunityTicketCard } from '@/components/community/CommunityTicketCard';
 import { SearchBar } from '@/components/shared/SearchBar';
-import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import { ThumbsUp, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { StudentTicketDetailSheet } from '@/components/student/StudentTicketDetailSheet';
 
 type Ticket = {
@@ -150,47 +149,49 @@ const Community = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 pb-24 md:pb-6">
-        <h1 className="text-3xl font-semibold text-foreground mb-6">Community Voices</h1>
-
-      <div className="mb-6">
-        <SearchBar 
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search by title or description..."
-        />
+    <div className="min-h-screen bg-background">
+      {/* Hero Header with Gradient */}
+      <div className="bg-gradient-to-b from-primary/10 to-background pb-8 pt-6 border-b border-border">
+        <div className="container mx-auto px-6">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-foreground text-center tracking-tight mb-6">
+            Community Voices
+          </h1>
+          
+          {/* Floating Search Bar */}
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-background shadow-md rounded-full border-0 overflow-hidden">
+              <SearchBar 
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search by title or description..."
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-4">
-        {filteredActiveTickets.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">
-              {searchQuery ? 'No matching tickets found.' : 'No active public complaints yet. Be the first to share your voice! 🎤'}
-            </p>
-          </div>
-        ) : (
-          filteredActiveTickets.map((ticket) => (
-            <div key={ticket.id} className="relative">
-              <TicketCard ticket={ticket} onClick={() => handleTicketClick(ticket)} />
-              <div className="mt-2 flex items-center gap-2">
-                <Button
-                  variant={userUpvotes.has(ticket.id) ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => handleUpvote(ticket.id)}
-                  disabled={upvoting === ticket.id}
-                  className="gap-2"
-                >
-                  {upvoting === ticket.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <ThumbsUp className="h-4 w-4" />
-                  )}
-                  Me Too ({ticket.upvote_count})
-                </Button>
-              </div>
+      {/* Content Area */}
+      <div className="container mx-auto px-6 py-6 pb-24 md:pb-6">
+        <div className="space-y-4 max-w-4xl mx-auto">
+          {filteredActiveTickets.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg">
+                {searchQuery ? 'No matching tickets found.' : 'No active public complaints yet. Be the first to share your voice! 🎤'}
+              </p>
             </div>
-          ))
-        )}
+          ) : (
+            filteredActiveTickets.map((ticket) => (
+              <CommunityTicketCard
+                key={ticket.id}
+                ticket={ticket}
+                onUpvote={handleUpvote}
+                onOpen={handleTicketClick}
+                hasUpvoted={userUpvotes.has(ticket.id)}
+                isUpvoting={upvoting === ticket.id}
+              />
+            ))
+          )}
+        </div>
       </div>
 
       <StudentTicketDetailSheet
