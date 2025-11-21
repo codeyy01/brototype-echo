@@ -1,9 +1,9 @@
 import { formatDistanceToNow } from 'date-fns';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from './StatusBadge';
 import { SeverityIcon } from './SeverityIcon';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, ChevronRight } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TicketCardProps {
@@ -35,9 +35,11 @@ export const TicketCard = ({
   const isMobile = useIsMobile();
   const canEdit = currentUserId && ticket.created_by === currentUserId && ticket.status === 'open';
 
-  const truncateText = (text: string) => {
-    if (!isMobile) return text;
-    return text.length > 10 ? text.slice(0, 10) + '...' : text;
+  const truncateText = (text: string, maxLength: number) => {
+    if (text.length > maxLength) {
+      return text.slice(0, maxLength) + '...';
+    }
+    return text;
   };
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -50,73 +52,96 @@ export const TicketCard = ({
     onDelete?.(ticket.id);
   };
 
-  const getSeverityColor = () => {
-    switch (ticket.severity) {
-      case 'critical': return 'bg-red-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'low': return 'bg-green-500';
-      default: return 'bg-slate-300';
-    }
+  const severityColors = {
+    low: 'border-l-green-400',
+    medium: 'border-l-amber-400',
+    critical: 'border-l-red-500',
   };
 
   return (
-    <Card
-      className="bg-white rounded-xl border border-slate-100 shadow-sm relative overflow-hidden hover:shadow-md hover:border-sky-100 transition-all duration-300 ease-out cursor-pointer"
+    <div
+      className={`w-full max-w-full bg-background rounded-xl shadow-sm border border-border hover:shadow-md transition-all overflow-hidden border-l-4 cursor-pointer ${
+        severityColors[ticket.severity as keyof typeof severityColors]
+      }`}
       onClick={onClick}
     >
-      {/* Severity Strip */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1 ${getSeverityColor()}`} />
-      
-      <CardHeader className="pb-3 pl-6">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-start gap-2 flex-1 min-w-0">
-            <SeverityIcon severity={ticket.severity as any} />
-            <div className="flex-1 min-w-0">
-              <h3 className={`text-slate-800 font-semibold text-lg tracking-tight ${isMobile ? 'whitespace-nowrap' : 'line-clamp-1'}`}>
-                {truncateText(ticket.title)}
+      {/* Card Content */}
+      <div className="p-4 md:p-5 w-full max-w-full">
+        {/* Header with Severity Icon and Status */}
+        <div className="flex items-start justify-between gap-3 mb-3 w-full max-w-full">
+          <div className="flex items-start gap-3 flex-1 min-w-0 max-w-full">
+            <div className="flex-shrink-0">
+              <SeverityIcon severity={ticket.severity as any} />
+            </div>
+            <div className="flex-1 min-w-0 max-w-full">
+              <h3 className="font-bold text-foreground text-base md:text-lg mb-1 break-words overflow-wrap-anywhere">
+                {isMobile ? truncateText(ticket.title, 10) : ticket.title}
               </h3>
-              {ticket.description && (
-                <p className={`text-slate-500 text-sm leading-relaxed mt-2 ${isMobile ? 'whitespace-nowrap' : 'line-clamp-2 md:line-clamp-3'}`}>
-                  {truncateText(ticket.description)}
-                </p>
-              )}
+              <div className="flex flex-wrap gap-2 items-center mb-2">
+                <StatusBadge status={ticket.status as any} />
+                <span className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
+                </span>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0 ml-2">
+        </div>
+
+        {/* Description */}
+        {ticket.description && (
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-4 break-words overflow-wrap-anywhere w-full max-w-full">
+            {isMobile ? truncateText(ticket.description, 10) : ticket.description}
+          </p>
+        )}
+
+        {/* Footer with Actions */}
+        <div className="flex items-center justify-between gap-3 pt-3 border-t border-border flex-wrap w-full max-w-full">
+          {/* Left side - Edit/Delete buttons or Upvotes */}
+          <div className="flex items-center gap-2">
             {canEdit && onEdit && (
               <Button
                 variant="ghost"
-                size="icon"
-                className="h-8 w-8"
+                size="sm"
                 onClick={handleEdit}
+                className="text-muted-foreground hover:text-primary hover:bg-primary/10 gap-1 flex-shrink-0"
               >
                 <Pencil className="h-4 w-4" />
+                <span className="hidden sm:inline">Edit</span>
               </Button>
             )}
             {canEdit && onDelete && (
               <Button
                 variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-destructive hover:text-destructive"
+                size="sm"
                 onClick={handleDelete}
+                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-1 flex-shrink-0"
               >
                 <Trash2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Delete</span>
               </Button>
             )}
-            <StatusBadge status={ticket.status as any} />
+            {showUpvotes && ticket.upvote_count !== undefined && (
+              <Badge className="bg-primary/10 text-primary border border-primary/30 rounded-full px-2 py-0.5 text-xs">
+                {ticket.upvote_count} upvotes
+              </Badge>
+            )}
           </div>
+
+          {/* Right side - Open button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.();
+            }}
+            className="text-primary hover:text-primary hover:bg-primary/10 gap-1 flex-shrink-0"
+          >
+            Open
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
-      </CardHeader>
-      <CardContent className="pt-0 pl-6">
-        <div className="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider">
-          <span>
-            {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
-          </span>
-          {showUpvotes && ticket.upvote_count !== undefined && (
-            <span className="font-medium">{ticket.upvote_count} upvotes</span>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
