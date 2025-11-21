@@ -190,11 +190,9 @@ const AdminDashboard = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="open" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-4 xl:gap-6">
+        <TabsContent value="open" className="flex flex-col gap-4">
           {openTickets.length === 0 ? (
-            <div className="col-span-full">
-              <EmptyState message="All caught up!" />
-            </div>
+            <EmptyState message="All caught up!" />
           ) : (
             openTickets.map((ticket) => (
               <TicketCard 
@@ -202,17 +200,14 @@ const AdminDashboard = () => {
                 ticket={ticket} 
                 onClick={() => handleTicketClick(ticket)}
                 showUpvotes
-                className="h-full"
               />
             ))
           )}
         </TabsContent>
 
-        <TabsContent value="in_progress" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-4 xl:gap-6">
+        <TabsContent value="in_progress" className="flex flex-col gap-4">
           {inProgressTickets.length === 0 ? (
-            <div className="col-span-full">
-              <EmptyState message="No tickets in progress" />
-            </div>
+            <EmptyState message="No tickets in progress" />
           ) : (
             inProgressTickets.map((ticket) => (
               <TicketCard 
@@ -220,17 +215,14 @@ const AdminDashboard = () => {
                 ticket={ticket} 
                 onClick={() => handleTicketClick(ticket)}
                 showUpvotes
-                className="h-full"
               />
             ))
           )}
         </TabsContent>
 
-        <TabsContent value="resolved" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-4 xl:gap-6">
+        <TabsContent value="resolved" className="flex flex-col gap-4">
           {resolvedTickets.length === 0 ? (
-            <div className="col-span-full">
-              <EmptyState message="No resolved tickets yet" />
-            </div>
+            <EmptyState message="No resolved tickets yet" />
           ) : (
             resolvedTickets.map((ticket) => (
               <TicketCard 
@@ -238,7 +230,6 @@ const AdminDashboard = () => {
                 ticket={ticket} 
                 onClick={() => handleTicketClick(ticket)}
                 showUpvotes
-                className="h-full"
               />
             ))
           )}
