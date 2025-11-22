@@ -27,19 +27,10 @@ export default function Profile() {
       if (!user) return;
       
       try {
-        let query = supabase
+        const { count, error } = await supabase
           .from('tickets')
-          .select('*', { count: 'exact', head: true });
-
-        // For admins, count resolved tickets (system-wide)
-        // For students, count their own tickets
-        if (role === 'admin') {
-          query = query.eq('status', 'resolved');
-        } else {
-          query = query.eq('created_by', user.id);
-        }
-
-        const { count, error } = await query;
+          .select('*', { count: 'exact', head: true })
+          .eq('created_by', user.id);
 
         if (error) throw error;
         setTicketCount(count || 0);
@@ -49,7 +40,7 @@ export default function Profile() {
     };
 
     fetchTicketCount();
-  }, [user, role]);
+  }, [user]);
 
   const getInitials = (email: string) => {
     return email.charAt(0).toUpperCase();
@@ -78,9 +69,7 @@ export default function Profile() {
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               <FileText className="w-4 h-4 text-primary" />
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                {role === 'admin' ? 'Resolved Complaints' : 'Total Complaints'}
-              </p>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Complaints</p>
             </div>
             <p className="text-3xl font-bold text-foreground">{ticketCount}</p>
           </div>
