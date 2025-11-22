@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { toast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Loader2, CheckCircle, CalendarIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -35,6 +36,7 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [severityFilter, setSeverityFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchTickets();
@@ -250,6 +252,7 @@ const AdminDashboard = () => {
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         onUpdate={fetchTickets}
+        isMobile={isMobile}
       />
     </div>
   );
