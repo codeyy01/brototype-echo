@@ -16,7 +16,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png'];
 
 const complaintSchema = z.object({
-  title: z.string().trim().min(5, 'Title must be at least 5 characters').max(200, 'Title must be less than 200 characters'),
+  title: z.string().trim().min(5, 'Title must be at least 5 characters').max(80, 'Title must be less than 80 characters'),
   description: z.string().trim().min(10, 'Description must be at least 10 characters').max(5000, 'Description must be less than 5000 characters'),
   category: z.enum(['academic', 'infrastructure', 'other']),
   severity: z.enum(['low', 'medium', 'critical']),
@@ -184,8 +184,10 @@ const NewComplaint = () => {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="Brief summary of your concern"
+                maxLength={80}
                 required
               />
+              <p className="text-xs text-muted-foreground text-right">{formData.title.length}/80</p>
             </div>
 
             <div className="space-y-2">

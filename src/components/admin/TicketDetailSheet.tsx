@@ -174,7 +174,7 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
             {/* Title */}
             <div className="flex items-start gap-3">
               <SeverityIcon severity={ticket.severity as any} />
-              <h2 className="text-2xl font-bold text-slate-900 flex-1">{ticket.title}</h2>
+              <h2 className="text-2xl font-bold text-slate-900 flex-1 break-words">{ticket.title}</h2>
             </div>
 
             {/* Meta Information */}
@@ -331,7 +331,7 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
               {/* Title */}
               <div className="flex items-start gap-3">
                 <SeverityIcon severity={ticket.severity as any} />
-                <h2 className="text-3xl font-bold text-slate-900 flex-1">{ticket.title}</h2>
+                <h2 className="text-3xl font-bold text-slate-900 flex-1 break-words">{ticket.title}</h2>
               </div>
 
               {/* Meta Information */}
