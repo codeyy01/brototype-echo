@@ -81,7 +81,7 @@ export const StudentTicketDetailSheet = ({
         <SheetHeader>
           <div className="flex items-start gap-3 mb-4">
             <SeverityIcon severity={ticket.severity as any} />
-            <h2 className="flex-1 text-xl md:text-2xl font-bold text-foreground">{ticket.title}</h2>
+            <h2 className="flex-1 text-xl md:text-2xl font-bold text-foreground break-words">{ticket.title}</h2>
           </div>
           {!isPublicView && (
             <SheetDescription>View your complaint details and admin responses</SheetDescription>
