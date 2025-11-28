@@ -198,7 +198,7 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
             <div className="space-y-3">
               <p className="text-xs font-bold text-slate-400 tracking-wider">STUDENT REPORT</p>
               <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{ticket.description}</p>
+                <p className="text-slate-800 whitespace-pre-wrap leading-relaxed">{ticket.description}</p>
               </div>
             </div>
 
@@ -221,7 +221,7 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
 
             {/* Admin Response History */}
             {(loadingResponses || responses.length > 0) && (
-              <div className="space-y-3">
+              <div className="space-y-3 mt-8">
                 <p className="text-xs font-bold text-slate-400 tracking-wider">ADMIN RESPONSE HISTORY</p>
                 
                 {loadingResponses ? (
@@ -354,7 +354,7 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
             <div className="space-y-3">
               <p className="text-xs font-bold text-slate-400 tracking-wider">STUDENT REPORT</p>
               <div className="bg-slate-50 rounded-xl p-6 border border-slate-100">
-                <p className="text-slate-700 whitespace-pre-wrap leading-relaxed text-base">{ticket.description}</p>
+                <p className="text-slate-800 whitespace-pre-wrap leading-relaxed text-base">{ticket.description}</p>
               </div>
             </div>
 
@@ -377,7 +377,7 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
 
             {/* Admin Response History */}
             {(loadingResponses || responses.length > 0) && (
-              <div className="space-y-3">
+              <div className="space-y-3 mt-8">
                 <p className="text-xs font-bold text-slate-400 tracking-wider">ADMIN RESPONSE HISTORY</p>
                 
                 {loadingResponses ? (
