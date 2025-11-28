@@ -83,7 +83,7 @@ export const TicketCard = ({
               <div className="flex flex-wrap gap-2 items-center mb-2">
                 <StatusBadge status={ticket.status as any} />
                 <span className="text-xs text-muted-foreground">
-                  Updated {formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}
+                  {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
                 </span>
               </div>
             </div>
