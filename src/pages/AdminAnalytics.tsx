@@ -9,11 +9,19 @@ interface TicketStats {
   totalOpen: number;
   resolvedThisMonth: number;
   totalStudents: number;
-  byCategory: { name: string; value: number }[];
+  byCategory: { name: string; value: number; categoryKey: string }[];
   byStatus: { status: string; count: number }[];
 }
 
-const COLORS = ['hsl(199 89% 48%)', 'hsl(200 18% 46%)', 'hsl(215 16% 47%)'];
+// Category color mapping
+const CATEGORY_COLORS: Record<string, string> = {
+  'academic_labs': '#3b82f6',      // Blue
+  'infrastructure_wifi': '#6366f1', // Indigo
+  'hostel_mess': '#f97316',        // Orange
+  'sanitation_hygiene': '#10b981', // Emerald
+  'administrative': '#8b5cf6',     // Purple
+  'other': '#94a3b8',              // Gray (default for legacy data)
+};
 
 export default function AdminAnalytics() {
   const [stats, setStats] = useState<TicketStats>({
@@ -63,14 +71,24 @@ export default function AdminAnalytics() {
       // Count total students
       const totalStudents = studentRoles?.length || 0;
 
-      // Group by category
+      // Group by category with human-readable labels
       const categoryMap: Record<string, number> = {};
+      const categoryLabels: Record<string, string> = {
+        'academic_labs': 'Academic & Labs',
+        'infrastructure_wifi': 'Infrastructure & Wi-Fi',
+        'hostel_mess': 'Hostel & Mess',
+        'sanitation_hygiene': 'Sanitation & Hygiene',
+        'administrative': 'Administrative',
+        'other': 'Other',
+      };
+      
       tickets?.forEach((t) => {
         categoryMap[t.category] = (categoryMap[t.category] || 0) + 1;
       });
       const byCategory = Object.entries(categoryMap).map(([name, value]) => ({
-        name: name.charAt(0).toUpperCase() + name.slice(1),
+        name: categoryLabels[name] || name.charAt(0).toUpperCase() + name.slice(1),
         value,
+        categoryKey: name, // Keep original key for color mapping
       }));
 
       // Group by status for bar chart
@@ -175,17 +193,29 @@ export default function AdminAnalytics() {
             <CardContent className="w-full h-80">
               <ChartContainer
                 config={{
-                  academic: {
-                    label: 'Academic',
-                    color: 'hsl(199 89% 48%)',
+                  academic_labs: {
+                    label: 'Academic & Labs',
+                    color: '#3b82f6',
                   },
-                  infrastructure: {
-                    label: 'Infrastructure',
-                    color: 'hsl(200 18% 46%)',
+                  infrastructure_wifi: {
+                    label: 'Infrastructure & Wi-Fi',
+                    color: '#6366f1',
+                  },
+                  hostel_mess: {
+                    label: 'Hostel & Mess',
+                    color: '#f97316',
+                  },
+                  sanitation_hygiene: {
+                    label: 'Sanitation & Hygiene',
+                    color: '#10b981',
+                  },
+                  administrative: {
+                    label: 'Administrative',
+                    color: '#8b5cf6',
                   },
                   other: {
                     label: 'Other',
-                    color: 'hsl(215 16% 47%)',
+                    color: '#94a3b8',
                   },
                 }}
                 className="h-full w-full"
@@ -203,8 +233,8 @@ export default function AdminAnalytics() {
                       outerRadius={80}
                       dataKey="value"
                     >
-                      {stats.byCategory.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      {stats.byCategory.map((entry) => (
+                        <Cell key={`cell-${entry.categoryKey}`} fill={CATEGORY_COLORS[entry.categoryKey] || CATEGORY_COLORS.other} />
                       ))}
                     </Pie>
                     <ChartTooltip content={<ChartTooltipContent />} />

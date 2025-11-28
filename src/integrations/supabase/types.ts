@@ -213,7 +213,13 @@ export type Database = {
     Enums: {
       app_role: "admin" | "student"
       status_type: "info" | "warning" | "critical"
-      ticket_category: "academic" | "infrastructure" | "other"
+      ticket_category:
+        | "academic_labs"
+        | "infrastructure_wifi"
+        | "hostel_mess"
+        | "sanitation_hygiene"
+        | "administrative"
+        | "other"
       ticket_severity: "low" | "medium" | "critical"
       ticket_status: "open" | "in_progress" | "resolved"
       ticket_visibility: "private" | "public"
@@ -346,7 +352,14 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "student"],
       status_type: ["info", "warning", "critical"],
-      ticket_category: ["academic", "infrastructure", "other"],
+      ticket_category: [
+        "academic_labs",
+        "infrastructure_wifi",
+        "hostel_mess",
+        "sanitation_hygiene",
+        "administrative",
+        "other",
+      ],
       ticket_severity: ["low", "medium", "critical"],
       ticket_status: ["open", "in_progress", "resolved"],
       ticket_visibility: ["private", "public"],

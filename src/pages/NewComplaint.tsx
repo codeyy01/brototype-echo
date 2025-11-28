@@ -18,7 +18,9 @@ const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png'];
 const complaintSchema = z.object({
   title: z.string().trim().min(5, 'Title must be at least 5 characters').max(80, 'Title must be less than 80 characters'),
   description: z.string().trim().min(10, 'Description must be at least 10 characters').max(5000, 'Description must be less than 5000 characters'),
-  category: z.enum(['academic', 'infrastructure', 'other']),
+  category: z.enum(['academic_labs', 'infrastructure_wifi', 'hostel_mess', 'sanitation_hygiene', 'administrative', 'other'], {
+    required_error: 'Please select a category',
+  }),
   severity: z.enum(['low', 'medium', 'critical']),
   visibility: z.enum(['private', 'public']),
 });
@@ -30,7 +32,7 @@ const NewComplaint = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
-    category: 'other',
+    category: '',
     severity: 'medium',
     description: '',
     visibility: 'private' as 'private' | 'public',
@@ -116,7 +118,7 @@ const NewComplaint = () => {
         const updateData: any = {
           title: formData.title,
           description: formData.description,
-          category: formData.category as 'academic' | 'infrastructure' | 'other',
+          category: formData.category as 'academic_labs' | 'infrastructure_wifi' | 'hostel_mess' | 'sanitation_hygiene' | 'administrative' | 'other',
           severity: formData.severity as 'low' | 'medium' | 'critical',
           visibility: formData.visibility,
         };
@@ -142,7 +144,7 @@ const NewComplaint = () => {
         const { error } = await supabase.from('tickets').insert([{
           title: formData.title,
           description: formData.description,
-          category: formData.category as 'academic' | 'infrastructure' | 'other',
+          category: formData.category as 'academic_labs' | 'infrastructure_wifi' | 'hostel_mess' | 'sanitation_hygiene' | 'administrative' | 'other',
           severity: formData.severity as 'low' | 'medium' | 'critical',
           visibility: formData.visibility,
           attachment_url: attachmentUrl,
@@ -191,17 +193,20 @@ const NewComplaint = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category">Category *</Label>
               <Select
                 value={formData.category}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
                 <SelectTrigger id="category">
-                  <SelectValue />
+                  <SelectValue placeholder="Select a Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="academic">Academic</SelectItem>
-                  <SelectItem value="infrastructure">Infrastructure</SelectItem>
+                  <SelectItem value="academic_labs">Academic & Labs</SelectItem>
+                  <SelectItem value="infrastructure_wifi">Infrastructure & Wi-Fi</SelectItem>
+                  <SelectItem value="hostel_mess">Hostel & Mess</SelectItem>
+                  <SelectItem value="sanitation_hygiene">Sanitation & Hygiene</SelectItem>
+                  <SelectItem value="administrative">Administrative</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
