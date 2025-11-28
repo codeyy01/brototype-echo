@@ -247,7 +247,7 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 space-y-4">
               <p className="text-xs font-bold text-slate-400 tracking-wider">UPDATE TICKET</p>
               
-              {status === 'resolved' && !showFormForResolved ? (
+              {originalStatus === 'resolved' && !showFormForResolved ? (
                 <Button
                   onClick={() => setShowFormForResolved(true)}
                   variant="outline"
@@ -406,7 +406,7 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
               <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-5 space-y-4">
                 <p className="text-xs font-bold text-slate-400 tracking-wider">UPDATE TICKET</p>
                 
-                {status === 'resolved' && !showFormForResolved ? (
+                {originalStatus === 'resolved' && !showFormForResolved ? (
                   <Button
                     onClick={() => setShowFormForResolved(true)}
                     variant="outline"
