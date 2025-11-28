@@ -151,147 +151,151 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
     other: 'bg-slate-50 text-slate-700 border-slate-200',
   };
 
-  // Shared content component
-  const TicketContent = () => (
-    <>
-      {/* Header Section */}
-      <div className="space-y-4 pb-4 border-b border-slate-100">
-        {/* Badges Row */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <StatusBadge status={ticket.status as any} />
-          <span className={`border rounded-full px-3 py-1 text-xs font-medium ${severityColors[ticket.severity as keyof typeof severityColors]}`}>
-            {ticket.severity}
-          </span>
-          <span className={`border rounded-full px-3 py-1 text-xs font-medium ${categoryColors[ticket.category as keyof typeof categoryColors]}`}>
-            {ticket.category}
-          </span>
-        </div>
-        
-        {/* Title */}
-        <div className="flex items-start gap-3">
-          <SeverityIcon severity={ticket.severity as any} />
-          <h2 className="text-2xl font-bold text-slate-900 flex-1">{ticket.title}</h2>
-        </div>
+  // Mobile version - Sheet with inline content
+  if (isMobile) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          {/* Header Section */}
+          <div className="space-y-4 pb-4 border-b border-slate-100">
+            {/* Badges Row */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <StatusBadge status={ticket.status as any} />
+              <span className={`border rounded-full px-3 py-1 text-xs font-medium ${severityColors[ticket.severity as keyof typeof severityColors]}`}>
+                {ticket.severity}
+              </span>
+              <span className={`border rounded-full px-3 py-1 text-xs font-medium ${categoryColors[ticket.category as keyof typeof categoryColors]}`}>
+                {ticket.category}
+              </span>
+            </div>
+            
+            {/* Title */}
+            <div className="flex items-start gap-3">
+              <SeverityIcon severity={ticket.severity as any} />
+              <h2 className="text-2xl font-bold text-slate-900 flex-1">{ticket.title}</h2>
+            </div>
 
-        {/* Meta Information */}
-        <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-          <span className="flex items-center gap-1">
-            <ThumbsUp className="h-4 w-4" />
-            {ticket.upvote_count} upvotes
-          </span>
-          <span>
-            Updated {formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}
-          </span>
-          <span>
-            Created {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
-          </span>
-          <span className="capitalize">{ticket.visibility}</span>
-        </div>
-      </div>
-
-      <div className="mt-6 space-y-6">
-        {/* Student Report Section */}
-        <div className="space-y-3">
-          <p className="text-xs font-bold text-slate-400 tracking-wider">STUDENT REPORT</p>
-          <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-            <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{ticket.description}</p>
-          </div>
-        </div>
-
-        {/* Attachment */}
-        {ticket.attachment_url && (
-          <div className="space-y-3">
-            <p className="text-xs font-bold text-slate-400 tracking-wider flex items-center gap-2">
-              <Paperclip className="h-3 w-3" />
-              ATTACHMENT
-            </p>
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-              <img
-                src={ticket.attachment_url}
-                alt="Ticket attachment"
-                className="rounded-lg max-w-full h-auto"
-              />
+            {/* Meta Information */}
+            <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+              <span className="flex items-center gap-1">
+                <ThumbsUp className="h-4 w-4" />
+                {ticket.upvote_count} upvotes
+              </span>
+              <span>
+                Updated {formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}
+              </span>
+              <span>
+                Created {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
+              </span>
+              <span className="capitalize">{ticket.visibility}</span>
             </div>
           </div>
-        )}
 
-        {/* Admin Response History */}
-        {(loadingResponses || responses.length > 0) && (
-          <div className="space-y-3">
-            <p className="text-xs font-bold text-slate-400 tracking-wider">ADMIN RESPONSE HISTORY</p>
-            
-            {loadingResponses ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-sky-600" />
+          <div className="mt-6 space-y-6">
+            {/* Student Report Section */}
+            <div className="space-y-3">
+              <p className="text-xs font-bold text-slate-400 tracking-wider">STUDENT REPORT</p>
+              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{ticket.description}</p>
               </div>
-            ) : (
+            </div>
+
+            {/* Attachment */}
+            {ticket.attachment_url && (
               <div className="space-y-3">
-                {responses.map((response) => (
-                  <div key={response.id} className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-xl p-4 border border-sky-100">
-                    <p className="text-slate-700 leading-relaxed">{response.text}</p>
-                    <p className="text-xs text-slate-500 mt-3">
-                      {formatDistanceToNow(new Date(response.created_at), { addSuffix: true })}
-                    </p>
-                  </div>
-                ))}
+                <p className="text-xs font-bold text-slate-400 tracking-wider flex items-center gap-2">
+                  <Paperclip className="h-3 w-3" />
+                  ATTACHMENT
+                </p>
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                  <img
+                    src={ticket.attachment_url}
+                    alt="Ticket attachment"
+                    className="rounded-lg max-w-full h-auto"
+                  />
+                </div>
               </div>
             )}
-          </div>
-        )}
 
-        {/* Update Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 space-y-4">
-          <p className="text-xs font-bold text-slate-400 tracking-wider">UPDATE TICKET</p>
-          
-          {/* Status Dropdown */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Status</label>
-            <Select value={status} onValueChange={(value) => setStatus(value as 'open' | 'in_progress' | 'resolved')}>
-              <SelectTrigger className="w-full bg-slate-50 border-slate-200 focus:ring-sky-500">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="in_progress">In Progress</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Response Textarea */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Admin Response</label>
-            <Textarea
-              placeholder="Add a response to the student..."
-              value={responseText}
-              onChange={(e) => setResponseText(e.target.value)}
-              rows={4}
-              className="bg-slate-50 border-slate-200 focus:ring-sky-500 resize-none"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <Button 
-            onClick={handleSubmitUpdate} 
-            disabled={loading || (status === originalStatus && !responseText.trim())}
-            className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2.5 rounded-lg shadow-sm transition-all"
-          >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Submitting...
-              </span>
-            ) : (
-              'Submit Update'
+            {/* Admin Response History */}
+            {(loadingResponses || responses.length > 0) && (
+              <div className="space-y-3">
+                <p className="text-xs font-bold text-slate-400 tracking-wider">ADMIN RESPONSE HISTORY</p>
+                
+                {loadingResponses ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-sky-600" />
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {responses.map((response) => (
+                      <div key={response.id} className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-xl p-4 border border-sky-100">
+                        <p className="text-slate-700 leading-relaxed">{response.text}</p>
+                        <p className="text-xs text-slate-500 mt-3">
+                          {formatDistanceToNow(new Date(response.created_at), { addSuffix: true })}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
-          </Button>
-        </div>
-      </div>
-    </>
-  );
+
+            {/* Update Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 space-y-4">
+              <p className="text-xs font-bold text-slate-400 tracking-wider">UPDATE TICKET</p>
+              
+              {/* Status Dropdown */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Status</label>
+                <Select value={status} onValueChange={(value) => setStatus(value as 'open' | 'in_progress' | 'resolved')}>
+                  <SelectTrigger className="w-full bg-slate-50 border-slate-200 focus:ring-sky-500">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="open">Open</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="resolved">Resolved</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Response Textarea */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Admin Response</label>
+                <Textarea
+                  placeholder="Add a response to the student..."
+                  value={responseText}
+                  onChange={(e) => setResponseText(e.target.value)}
+                  rows={4}
+                  className="bg-slate-50 border-slate-200 focus:ring-sky-500 resize-none"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <Button 
+                onClick={handleSubmitUpdate} 
+                disabled={loading || (status === originalStatus && !responseText.trim())}
+                className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2.5 rounded-lg shadow-sm transition-all"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Submitting...
+                  </span>
+                ) : (
+                  'Submit Update'
+                )}
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
 
   // Desktop version - Two column Dialog
-  const DesktopDialog = () => (
+  return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden p-0">
         <div className="grid grid-cols-3 gap-6 p-6 overflow-y-auto max-h-[90vh]">
@@ -437,15 +441,4 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
       </DialogContent>
     </Dialog>
   );
-
-  // Mobile version - Sheet
-  const MobileSheet = () => (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
-        <TicketContent />
-      </SheetContent>
-    </Sheet>
-  );
-
-  return isMobile ? <MobileSheet /> : <DesktopDialog />;
 };

@@ -42,7 +42,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
-        <main className="flex-1">
+        <main className="flex-1 pb-20 md:pb-0">
           <TopNav />
           {children}
         </main>
