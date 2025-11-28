@@ -21,6 +21,7 @@ interface Ticket {
   visibility: string;
   upvote_count: number;
   created_at: string;
+  updated_at: string;
   created_by: string;
   attachment_url: string | null;
 }
@@ -179,7 +180,10 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
             {ticket.upvote_count} upvotes
           </span>
           <span>
-            {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
+            Updated {formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}
+          </span>
+          <span>
+            Created {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
           </span>
           <span className="capitalize">{ticket.visibility}</span>
         </div>
@@ -319,7 +323,10 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
                   {ticket.upvote_count} upvotes
                 </span>
                 <span>
-                  {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
+                  Updated {formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}
+                </span>
+                <span>
+                  Created {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
                 </span>
                 <span className="capitalize">{ticket.visibility}</span>
               </div>

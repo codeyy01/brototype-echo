@@ -21,6 +21,7 @@ interface Ticket {
   severity: string;
   category: string;
   created_at: string;
+  updated_at: string;
   upvote_count: number;
   attachment_url?: string;
 }
@@ -101,8 +102,13 @@ export const StudentTicketDetailSheet = ({
               {ticket.severity}
             </Badge>
             <span className="text-sm text-muted-foreground ml-auto">
-              {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
+              Updated {formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}
             </span>
+          </div>
+
+          {/* Timeline */}
+          <div className="text-xs text-muted-foreground mb-4">
+            Created {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
           </div>
 
           {/* Description */}

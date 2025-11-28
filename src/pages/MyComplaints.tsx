@@ -35,7 +35,7 @@ export default function MyComplaints() {
         .from('tickets')
         .select('*')
         .eq('created_by', user?.id)
-        .order('created_at', { ascending: false });
+        .order('updated_at', { ascending: false });
       
       if (error) throw error;
       return data;
@@ -64,7 +64,7 @@ export default function MyComplaints() {
         .neq('created_by', user?.id)
         .eq('visibility', 'public')
         .in('status', ['open', 'in_progress'])
-        .order('created_at', { ascending: false });
+        .order('updated_at', { ascending: false });
       
       if (ticketsError) throw ticketsError;
       return tickets;
