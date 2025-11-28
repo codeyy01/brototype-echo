@@ -191,6 +191,11 @@ export default function AdminAnalytics() {
               <CardTitle>Complaints by Category</CardTitle>
             </CardHeader>
             <CardContent className="w-full h-80">
+              {stats.byCategory.length === 0 ? (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-muted-foreground">No data available</p>
+                </div>
+              ) : (
               <ChartContainer
                 config={{
                   academic_labs: {
@@ -241,6 +246,7 @@ export default function AdminAnalytics() {
                   </PieChart>
                 </ResponsiveContainer>
               </ChartContainer>
+              )}
             </CardContent>
           </Card>
 

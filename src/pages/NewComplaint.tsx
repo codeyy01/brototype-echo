@@ -39,6 +39,7 @@ const NewComplaint = () => {
   });
   const [file, setFile] = useState<File | null>(null);
   const [editingTicketId, setEditingTicketId] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const editTicket = location.state?.editTicket;
@@ -58,9 +59,22 @@ const NewComplaint = () => {
     e.preventDefault();
     if (!user) return;
 
+    // Clear previous validation errors
+    setValidationErrors({});
+
     // Validate form data with zod
     const validation = complaintSchema.safeParse(formData);
     if (!validation.success) {
+      // Build inline validation errors
+      const errors: Record<string, string> = {};
+      validation.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0] as string] = err.message;
+        }
+      });
+      setValidationErrors(errors);
+      
+      // Also show toast for first error
       const firstError = validation.error.errors[0];
       toast({
         title: 'Validation Error',
@@ -161,11 +175,15 @@ const NewComplaint = () => {
 
       navigate('/my-complaints');
     } catch (error: any) {
+      // Check if it's a network error
+      const isNetworkError = !navigator.onLine || error.message?.includes('fetch') || error.message?.includes('network');
+      
       toast({
-        title: 'Submission failed',
-        description: error.message,
+        title: isNetworkError ? 'Connection failed' : 'Submission failed',
+        description: isNetworkError ? 'Please check your internet connection and try again.' : error.message,
         variant: 'destructive',
       });
+      // Keep form data so user doesn't lose their work
     } finally {
       setLoading(false);
     }
@@ -184,21 +202,37 @@ const NewComplaint = () => {
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, title: e.target.value });
+                  if (validationErrors.title) {
+                    setValidationErrors({ ...validationErrors, title: '' });
+                  }
+                }}
                 placeholder="Brief summary of your concern"
                 maxLength={80}
                 required
+                className={validationErrors.title ? 'border-red-500' : ''}
               />
-              <p className="text-xs text-muted-foreground text-right">{formData.title.length}/80</p>
+              <div className="flex justify-between items-center">
+                {validationErrors.title && (
+                  <p className="text-xs text-red-500">{validationErrors.title}</p>
+                )}
+                <p className={`text-xs text-muted-foreground ${validationErrors.title ? '' : 'ml-auto'}`}>{formData.title.length}/80</p>
+              </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="category">Category *</Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
+                onValueChange={(value) => {
+                  setFormData({ ...formData, category: value });
+                  if (validationErrors.category) {
+                    setValidationErrors({ ...validationErrors, category: '' });
+                  }
+                }}
               >
-                <SelectTrigger id="category">
+                <SelectTrigger id="category" className={validationErrors.category ? 'border-red-500' : ''}>
                   <SelectValue placeholder="Select a Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -210,6 +244,9 @@ const NewComplaint = () => {
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
+              {validationErrors.category && (
+                <p className="text-xs text-red-500">{validationErrors.category}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -234,11 +271,20 @@ const NewComplaint = () => {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, description: e.target.value });
+                  if (validationErrors.description) {
+                    setValidationErrors({ ...validationErrors, description: '' });
+                  }
+                }}
                 placeholder="Describe your concern in detail"
                 rows={6}
                 required
+                className={validationErrors.description ? 'border-red-500' : ''}
               />
+              {validationErrors.description && (
+                <p className="text-xs text-red-500">{validationErrors.description}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -292,7 +338,14 @@ const NewComplaint = () => {
             </div>
 
             <Button type="submit" disabled={loading} className="w-full">
-              {loading ? (editingTicketId ? 'Updating...' : 'Submitting...') : (editingTicketId ? 'Update Complaint' : 'Submit Complaint')}
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                  {editingTicketId ? 'Updating...' : 'Submitting...'}
+                </span>
+              ) : (
+                editingTicketId ? 'Update Complaint' : 'Submit Complaint'
+              )}
             </Button>
           </form>
         </CardContent>
