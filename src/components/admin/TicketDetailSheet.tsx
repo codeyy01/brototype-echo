@@ -48,6 +48,7 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
   const [responses, setResponses] = useState<AdminResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingResponses, setLoadingResponses] = useState(false);
+  const [showFormForResolved, setShowFormForResolved] = useState(false);
 
   const fetchResponses = async () => {
     if (!ticket) return;
@@ -133,6 +134,7 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
       const ticketStatus = ticket.status as 'open' | 'in_progress' | 'resolved';
       setStatus(ticketStatus);
       setOriginalStatus(ticketStatus);
+      setShowFormForResolved(false);
       fetchResponses();
     }
   }, [ticket?.id]);
@@ -245,48 +247,60 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 space-y-4">
               <p className="text-xs font-bold text-slate-400 tracking-wider">UPDATE TICKET</p>
               
-              {/* Status Dropdown */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Status</label>
-                <Select value={status} onValueChange={(value) => setStatus(value as 'open' | 'in_progress' | 'resolved')}>
-                  <SelectTrigger className="w-full bg-slate-50 border-slate-200 focus:ring-sky-500">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="open">Open</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="resolved">Resolved</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {status === 'resolved' && !showFormForResolved ? (
+                <Button
+                  onClick={() => setShowFormForResolved(true)}
+                  variant="outline"
+                  className="w-full text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                >
+                  Re-open or Add Note
+                </Button>
+              ) : (
+                <>
+                  {/* Status Dropdown */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">Status</label>
+                    <Select value={status} onValueChange={(value) => setStatus(value as 'open' | 'in_progress' | 'resolved')}>
+                      <SelectTrigger className="w-full bg-slate-50 border-slate-200 focus:ring-sky-500">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="open">Open</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="resolved">Resolved</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              {/* Response Textarea */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Admin Response</label>
-                <Textarea
-                  placeholder="Add a response to the student..."
-                  value={responseText}
-                  onChange={(e) => setResponseText(e.target.value)}
-                  rows={4}
-                  className="bg-slate-50 border-slate-200 focus:ring-sky-500 resize-none"
-                />
-              </div>
+                  {/* Response Textarea */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">Admin Response</label>
+                    <Textarea
+                      placeholder="Add a response to the student..."
+                      value={responseText}
+                      onChange={(e) => setResponseText(e.target.value)}
+                      rows={4}
+                      className="bg-slate-50 border-slate-200 focus:ring-sky-500 resize-none"
+                    />
+                  </div>
 
-              {/* Submit Button */}
-              <Button 
-                onClick={handleSubmitUpdate} 
-                disabled={loading || (status === originalStatus && !responseText.trim())}
-                className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2.5 rounded-lg shadow-sm transition-all"
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Submitting...
-                  </span>
-                ) : (
-                  'Submit Update'
-                )}
-              </Button>
+                  {/* Submit Button */}
+                  <Button 
+                    onClick={handleSubmitUpdate} 
+                    disabled={loading || (status === originalStatus && !responseText.trim())}
+                    className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2.5 rounded-lg shadow-sm transition-all"
+                  >
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Submitting...
+                      </span>
+                    ) : (
+                      'Submit Update'
+                    )}
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </SheetContent>
@@ -392,48 +406,60 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
               <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-5 space-y-4">
                 <p className="text-xs font-bold text-slate-400 tracking-wider">UPDATE TICKET</p>
                 
-                {/* Status Dropdown */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Status</label>
-                  <Select value={status} onValueChange={(value) => setStatus(value as 'open' | 'in_progress' | 'resolved')}>
-                    <SelectTrigger className="w-full bg-slate-50 border-slate-200 focus:ring-sky-500">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="open">Open</SelectItem>
-                      <SelectItem value="in_progress">In Progress</SelectItem>
-                      <SelectItem value="resolved">Resolved</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {status === 'resolved' && !showFormForResolved ? (
+                  <Button
+                    onClick={() => setShowFormForResolved(true)}
+                    variant="outline"
+                    className="w-full text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                  >
+                    Re-open or Add Note
+                  </Button>
+                ) : (
+                  <>
+                    {/* Status Dropdown */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-700">Status</label>
+                      <Select value={status} onValueChange={(value) => setStatus(value as 'open' | 'in_progress' | 'resolved')}>
+                        <SelectTrigger className="w-full bg-slate-50 border-slate-200 focus:ring-sky-500">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="open">Open</SelectItem>
+                          <SelectItem value="in_progress">In Progress</SelectItem>
+                          <SelectItem value="resolved">Resolved</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                {/* Response Textarea */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Admin Response</label>
-                  <Textarea
-                    placeholder="Add a response to the student..."
-                    value={responseText}
-                    onChange={(e) => setResponseText(e.target.value)}
-                    rows={6}
-                    className="bg-slate-50 border-slate-200 focus:ring-sky-500 resize-none"
-                  />
-                </div>
+                    {/* Response Textarea */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-700">Admin Response</label>
+                      <Textarea
+                        placeholder="Add a response to the student..."
+                        value={responseText}
+                        onChange={(e) => setResponseText(e.target.value)}
+                        rows={6}
+                        className="bg-slate-50 border-slate-200 focus:ring-sky-500 resize-none"
+                      />
+                    </div>
 
-                {/* Submit Button */}
-                <Button 
-                  onClick={handleSubmitUpdate} 
-                  disabled={loading || (status === originalStatus && !responseText.trim())}
-                  className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 rounded-lg shadow-sm transition-all"
-                >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Submitting...
-                    </span>
-                  ) : (
-                    'Save Changes'
-                  )}
-                </Button>
+                    {/* Submit Button */}
+                    <Button 
+                      onClick={handleSubmitUpdate} 
+                      disabled={loading || (status === originalStatus && !responseText.trim())}
+                      className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 rounded-lg shadow-sm transition-all"
+                    >
+                      {loading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Submitting...
+                        </span>
+                      ) : (
+                        'Save Changes'
+                      )}
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
