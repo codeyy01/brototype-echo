@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       toast({
         title: 'Account created!',
-        description: 'Please check your email to confirm your account before signing in.',
+        description: 'Welcome to BroBox. Signing you in...',
       });
     } catch (error: any) {
       toast({
