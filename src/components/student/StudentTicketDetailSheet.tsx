@@ -98,13 +98,16 @@ export const StudentTicketDetailSheet = ({
             <Badge className="bg-primary/10 text-primary border border-primary/30 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize">
               {ticket.category}
             </Badge>
-          <Badge className="bg-primary/10 text-primary border border-primary/30 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize">
+            <Badge className="bg-primary/10 text-primary border border-primary/30 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize">
               {ticket.severity}
             </Badge>
+            <span className="text-sm text-muted-foreground ml-auto">
+              Updated {formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}
+            </span>
           </div>
 
           {/* Timeline */}
-          <div className="text-sm text-muted-foreground mb-4">
+          <div className="text-xs text-muted-foreground mb-4">
             Created {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
           </div>
 

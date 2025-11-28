@@ -180,6 +180,9 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
             {ticket.upvote_count} upvotes
           </span>
           <span>
+            Updated {formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}
+          </span>
+          <span>
             Created {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
           </span>
           <span className="capitalize">{ticket.visibility}</span>
@@ -318,6 +321,9 @@ export const TicketDetailSheet = ({ ticket, open, onOpenChange, onUpdate, isMobi
                 <span className="flex items-center gap-1">
                   <ThumbsUp className="h-4 w-4" />
                   {ticket.upvote_count} upvotes
+                </span>
+                <span>
+                  Updated {formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}
                 </span>
                 <span>
                   Created {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
