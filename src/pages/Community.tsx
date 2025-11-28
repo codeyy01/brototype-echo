@@ -18,6 +18,7 @@ type Ticket = {
   visibility: string;
   upvote_count: number;
   created_at: string;
+  updated_at: string;
   created_by: string;
 };
 
@@ -46,7 +47,7 @@ const Community = () => {
         .eq('visibility', 'public')
         .neq('status', 'resolved')
         .order('upvote_count', { ascending: false })
-        .order('created_at', { ascending: false });
+        .order('updated_at', { ascending: false });
 
       if (activeError) throw activeError;
 

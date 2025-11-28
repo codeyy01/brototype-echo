@@ -15,6 +15,7 @@ interface Ticket {
   status: string;
   upvote_count: number;
   created_at: string;
+  updated_at: string;
 }
 
 interface CommunityTicketCardProps {
@@ -71,7 +72,7 @@ export const CommunityTicketCard = ({
                   {ticket.category}
                 </Badge>
                 <span className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
+                  Updated {formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}
                 </span>
               </div>
             </div>

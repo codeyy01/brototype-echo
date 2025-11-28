@@ -14,6 +14,7 @@ interface TicketCardProps {
     status: string;
     severity: string;
     created_at: string;
+    updated_at: string;
     upvote_count?: number;
     created_by?: string;
   };
@@ -82,7 +83,7 @@ export const TicketCard = ({
               <div className="flex flex-wrap gap-2 items-center mb-2">
                 <StatusBadge status={ticket.status as any} />
                 <span className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
+                  Updated {formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}
                 </span>
               </div>
             </div>

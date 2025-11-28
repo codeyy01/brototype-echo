@@ -24,6 +24,7 @@ type Ticket = {
   visibility: string;
   upvote_count: number;
   created_at: string;
+  updated_at: string;
   created_by: string;
   attachment_url: string | null;
 };
@@ -74,7 +75,7 @@ const AdminDashboard = () => {
       const { data, error } = await query
         .order('severity', { ascending: false })
         .order('upvote_count', { ascending: false })
-        .order('created_at', { ascending: false });
+        .order('updated_at', { ascending: false });
 
       if (error) throw error;
 
