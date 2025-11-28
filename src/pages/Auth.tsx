@@ -39,8 +39,7 @@ export default function Auth() {
     setLoading(true);
     try {
       await signUp(email, password);
-      // Auto sign in after signup
-      await signIn(email, password);
+      // Don't auto sign in - user needs to confirm email first
     } finally {
       setLoading(false);
     }
