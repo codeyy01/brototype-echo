@@ -18,9 +18,10 @@ const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png'];
 const complaintSchema = z.object({
   title: z.string().trim().min(5, 'Title must be at least 5 characters').max(80, 'Title must be less than 80 characters'),
   description: z.string().trim().min(10, 'Description must be at least 10 characters').max(5000, 'Description must be less than 5000 characters'),
-  category: z.enum(['academic_labs', 'infrastructure_wifi', 'hostel_mess', 'sanitation_hygiene', 'administrative', 'other'], {
-    required_error: 'Please select a category',
-  }),
+  category: z.string().min(1, 'Please select a category').refine(
+    (val) => ['academic_labs', 'infrastructure_wifi', 'hostel_mess', 'sanitation_hygiene', 'administrative', 'other'].includes(val),
+    { message: 'Please select a valid category' }
+  ),
   severity: z.enum(['low', 'medium', 'critical']),
   visibility: z.enum(['private', 'public']),
 });
@@ -61,6 +62,17 @@ const NewComplaint = () => {
 
     // Clear previous validation errors
     setValidationErrors({});
+
+    // Extra guard: Check for empty category before validation
+    if (!formData.category || formData.category.trim() === '') {
+      setValidationErrors({ category: 'Please select a category' });
+      toast({
+        title: 'Validation Error',
+        description: 'Please select a category',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     // Validate form data with zod
     const validation = complaintSchema.safeParse(formData);
@@ -175,12 +187,28 @@ const NewComplaint = () => {
 
       navigate('/my-complaints');
     } catch (error: any) {
+      console.error('Submission error:', error);
+      
       // Check if it's a network error
       const isNetworkError = !navigator.onLine || error.message?.includes('fetch') || error.message?.includes('network');
       
+      // Check if it's an enum/database validation error
+      const isEnumError = error.message?.toLowerCase().includes('enum') || error.message?.toLowerCase().includes('invalid');
+      
+      let errorTitle = 'Submission failed';
+      let errorDescription = 'An unexpected error occurred. Please try again.';
+      
+      if (isNetworkError) {
+        errorTitle = 'Connection failed';
+        errorDescription = 'Please check your internet connection and try again.';
+      } else if (isEnumError) {
+        errorTitle = 'Validation Error';
+        errorDescription = 'Please check that all fields are filled correctly.';
+      }
+      
       toast({
-        title: isNetworkError ? 'Connection failed' : 'Submission failed',
-        description: isNetworkError ? 'Please check your internet connection and try again.' : error.message,
+        title: errorTitle,
+        description: errorDescription,
         variant: 'destructive',
       });
       // Keep form data so user doesn't lose their work
