@@ -117,7 +117,7 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 min-h-screen">
       <h1 className="text-3xl font-semibold text-foreground mb-6">Admin Dashboard</h1>
 
       {/* Search and Filter Controls */}
