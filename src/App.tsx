@@ -34,6 +34,30 @@ const adminNavItems = [
 
 const queryClient = new QueryClient();
 
+// Smart root redirect component
+const RootRedirect = () => {
+  const { user, role, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  return role === 'admin' 
+    ? <Navigate to="/admin-dashboard" replace />
+    : <Navigate to="/my-complaints" replace />;
+};
+
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const { role } = useAuth();
   const navItems = role === 'admin' ? adminNavItems : studentNavItems;
@@ -61,30 +85,30 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={<Navigate to="/auth" replace />} />
+            <Route path="/" element={<RootRedirect />} />
             <Route path="/my-complaints" element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['student']}>
                 <AppLayout>
                   <MyComplaints />
                 </AppLayout>
               </ProtectedRoute>
             } />
             <Route path="/new-complaint" element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['student']}>
                 <AppLayout>
                   <NewComplaint />
                 </AppLayout>
               </ProtectedRoute>
             } />
             <Route path="/community" element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['student']}>
                 <AppLayout>
                   <Community />
                 </AppLayout>
               </ProtectedRoute>
             } />
             <Route path="/profile" element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin', 'student']}>
                 <AppLayout>
                   <Profile />
                 </AppLayout>
