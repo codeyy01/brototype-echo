@@ -218,7 +218,7 @@ const NewComplaint = () => {
   };
 
   return (
-    <div className="container max-w-2xl mx-auto p-6 pb-24 md:pb-6">
+    <div className="container max-w-2xl mx-auto p-6 pb-24 md:pb-6 min-h-screen">
         <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-semibold text-foreground">{editingTicketId ? 'Edit Complaint' : 'New Complaint'}</CardTitle>

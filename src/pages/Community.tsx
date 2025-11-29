@@ -150,9 +150,9 @@ const Community = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Hero Header with Gradient */}
-      <div className="bg-gradient-to-b from-primary/10 to-background pb-8 pt-6 border-b border-border">
+      <div className="bg-gradient-to-b from-primary/10 to-transparent pb-8 pt-6 border-b border-border/50 backdrop-blur-sm">
         <div className="container mx-auto px-6">
           <h1 className="text-3xl md:text-4xl font-extrabold text-foreground text-center tracking-tight mb-6">
             Community Voices
@@ -160,7 +160,7 @@ const Community = () => {
           
           {/* Floating Search Bar */}
           <div className="max-w-2xl mx-auto">
-            <div className="bg-background shadow-md rounded-full border-0 overflow-hidden">
+            <div className="bg-white/70 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-full border border-white/40 overflow-hidden">
               <SearchBar 
                 value={searchQuery}
                 onChange={setSearchQuery}

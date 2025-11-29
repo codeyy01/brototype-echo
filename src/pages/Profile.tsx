@@ -59,9 +59,9 @@ export default function Profile() {
     <div className="p-6 pb-24 md:pb-6 max-w-2xl mx-auto">
       <h1 className="text-3xl font-semibold mb-6 text-foreground">Profile</h1>
       
-      <Card className="overflow-hidden bg-background border border-border shadow-sm">
+      <Card className="overflow-hidden border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white/70 backdrop-blur-md">
         {/* Hero Header with Gradient */}
-        <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-6 md:p-8 text-center border-b border-border">
+        <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-6 md:p-8 text-center border-b border-white/20 backdrop-blur-sm">
           <Avatar className="w-20 h-20 md:w-24 md:h-24 mx-auto border-4 border-background shadow-lg">
             <AvatarFallback className="bg-primary text-primary-foreground text-2xl md:text-3xl font-bold">
               {user?.email ? getInitials(user.email) : 'U'}
@@ -74,7 +74,7 @@ export default function Profile() {
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-2 gap-4 p-6 border-b border-border bg-muted/30">
+        <div className="grid grid-cols-2 gap-4 p-6 border-b border-white/20 bg-white/30 backdrop-blur-sm">
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               <FileText className="w-4 h-4 text-primary" />
@@ -97,7 +97,7 @@ export default function Profile() {
 
         <CardContent className="p-6 space-y-6">
           {/* Account Information Card */}
-          <div className="bg-background rounded-xl border border-border p-4 md:p-5">
+          <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-white/40 p-4 md:p-5">
             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Account Information</h3>
             <div>
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Email</p>
