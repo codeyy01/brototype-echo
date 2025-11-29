@@ -49,8 +49,7 @@ All colors MUST be HSL.
     @apply border-border;
   }
   body {
-    @apply bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 text-foreground font-sans;
+    @apply bg-background text-foreground font-sans;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-    min-height: 100vh;
   }
 }

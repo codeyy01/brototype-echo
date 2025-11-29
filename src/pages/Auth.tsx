@@ -84,8 +84,8 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <Card className="w-full max-w-md shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+    <div className="min-h-screen flex items-center justify-center bg-muted p-6">
+      <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="space-y-2 text-center">
           <CardTitle className="text-3xl font-semibold">BroBox</CardTitle>
           <CardDescription>The Student Voice Platform</CardDescription>

@@ -50,7 +50,7 @@ export const CommunityTicketCard = ({
 
   return (
     <div
-      className={`w-full max-w-full bg-white/70 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/40 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:bg-white/80 transition-all duration-300 overflow-hidden border-l-4 ${
+      className={`w-full max-w-full bg-background rounded-xl shadow-sm border border-border hover:shadow-md transition-all overflow-hidden border-l-4 ${
         severityColors[ticket.severity as keyof typeof severityColors]
       }`}
     >

@@ -134,7 +134,7 @@ export default function AdminAnalytics() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 space-y-6">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-foreground">Analytics Dashboard</h1>
