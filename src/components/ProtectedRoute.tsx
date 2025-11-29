@@ -26,32 +26,16 @@ export const ProtectedRoute = ({ children, requireAdmin = false, allowedRoles }:
     return <Navigate to="/auth" replace />;
   }
 
+  // Handle legacy requireAdmin prop
   if (requireAdmin && role !== 'admin') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-6">
-        <div className="text-center space-y-4 max-w-md">
-          <h1 className="text-2xl font-semibold text-foreground">Permission Denied</h1>
-          <p className="text-muted-foreground">
-            You don't have permission to access this page.
-          </p>
-          <Navigate to="/my-complaints" replace />
-        </div>
-      </div>
-    );
+    const redirectTarget = role === 'student' ? '/my-complaints' : '/admin-dashboard';
+    return <Navigate to={redirectTarget} replace />;
   }
 
+  // Handle role-based access control
   if (allowedRoles && role && !allowedRoles.includes(role)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-6">
-        <div className="text-center space-y-4 max-w-md">
-          <h1 className="text-2xl font-semibold text-foreground">Permission Denied</h1>
-          <p className="text-muted-foreground">
-            You don't have permission to access this page.
-          </p>
-          <Navigate to="/my-complaints" replace />
-        </div>
-      </div>
-    );
+    const redirectTarget = role === 'student' ? '/my-complaints' : '/admin-dashboard';
+    return <Navigate to={redirectTarget} replace />;
   }
 
   return <>{children}</>;

@@ -137,7 +137,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Silently handle session not found errors
       });
 
-      navigate('/auth');
+      navigate('/auth', { replace: true });
 
       toast({
         title: 'Signed out',
@@ -145,7 +145,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
     } catch (error: any) {
       // Still navigate and show success even if Supabase signout fails
-      navigate('/auth');
+      navigate('/auth', { replace: true });
       toast({
         title: 'Signed out',
         description: 'You have been signed out successfully.',
